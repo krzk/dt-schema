@@ -31,307 +31,137 @@ definitions:
     allOf:
       - $ref: "#/definitions/string-array"
       - maxItems: 1
-  uint8-item:
+  uint8:
     type: integer
+    typeSize: 8
     minimum: 0
     maximum: 0xff
-  uint8-matrix:
-    type: array
-    typeSize: 8
-    items:
-      type: array
-      items:
-        $ref: "#/definitions/uint8-item"
   uint8-array:
     type: array
-    typeSize: 8
     minItems: 1
-    maxItems: 1
     items:
-      type: array
-      items:
-        $ref: "#/definitions/uint8-item"
-  uint8:
+      $ref: "#/definitions/uint8"
+  uint8-matrix:
     type: array
-    typeSize: 8
     minItems: 1
-    maxItems: 1
     items:
-      type: array
-      items:
-        $ref: "#/definitions/uint8-item"
-      minItems: 1
-      maxItems: 1
+      $ref: "#/definitions/uint8-array"
 
-  int8-item:
+  int8:
     type: integer
-    minimum: -128
-    # maximum: 127
-    maximum: 0xff
-  int8-matrix:
-    type: array
     typeSize: 8
-    items:
-      type: array
-      items:
-        $ref: "#/definitions/int8-item"
+    minimum: -128
+    maximum: 127
   int8-array:
     type: array
-    typeSize: 8
     minItems: 1
-    maxItems: 1
     items:
-      type: array
-      items:
-        $ref: "#/definitions/int8-item"
-  int8:
+      $ref: "#/definitions/int8"
+  int8-matrix:
     type: array
-    typeSize: 8
     minItems: 1
-    maxItems: 1
     items:
-      type: array
-      items:
-        $ref: "#/definitions/int8-item"
-      minItems: 1
-      maxItems: 1
+      $ref: "#/definitions/int8-array"
 
-  uint16-item:
+  uint16:
     type: integer
+    typeSize: 16
     minimum: 0
     maximum: 0xffff
-  uint16-matrix:
-    type: array
-    typeSize: 16
-    items:
-      type: array
-      items:
-        $ref: "#/definitions/uint16-item"
   uint16-array:
     type: array
-    typeSize: 16
     minItems: 1
-    maxItems: 1
     items:
-      type: array
-      items:
-        $ref: "#/definitions/uint16-item"
-  uint16:
+      $ref: "#/definitions/uint16"
+  uint16-matrix:
     type: array
-    typeSize: 16
     minItems: 1
-    maxItems: 1
     items:
-      type: array
-      items:
-        $ref: "#/definitions/uint16-item"
-      minItems: 1
-      maxItems: 1
+      $ref: "#/definitions/uint16-array"
 
-  int16-item:
+  int16:
     type: integer
-    minimum: -8192
-    # maximum: 8191
-    maximum: 0xffff
-  int16-matrix:
-    type: array
     typeSize: 16
-    items:
-      type: array
-      items:
-        $ref: "#/definitions/uint16-item"
+    minimum: -8192
+    maximum: 8191
   int16-array:
     type: array
-    typeSize: 16
     minItems: 1
-    maxItems: 1
     items:
-      type: array
-      items:
-        $ref: "#/definitions/uint16-item"
-  int16:
+      $ref: "#/definitions/int16"
+  int16-matrix:
     type: array
-    typeSize: 16
     minItems: 1
-    maxItems: 1
     items:
-      type: array
-      items:
-        $ref: "#/definitions/uint16-item"
-      minItems: 1
-      maxItems: 1
+      $ref: "#/definitions/int16-array"
 
-  cell:
+  uint32:
     type: integer
+    typeSize: 32
     minimum: 0
     maximum: 0xffffffff
-
+  uint32-array:
+    type: array
+    minItems: 1
+    items:
+      $ref: "#/definitions/uint32"
   uint32-matrix:
     type: array
-    typeSize: 32
     minItems: 1
     items:
-      type: array
-      items:
-        $ref: "#/definitions/cell"
-  uint32-array:
-    # For single cell arrays, we need to support encodings as either:
-    # prop = <0x1234 0x5678>;
-    # or
-    # prop = <0x1234>, <0x5678>;
-    typeSize: 32
-    anyOf:
-      - type: array
-        minItems: 1
-        maxItems: 1
-        items:
-          type: array
-          items:
-            $ref: "#/definitions/cell"
-      - type: array
-        items:
-          type: array
-          minItems: 1
-          maxItems: 1
-          items:
-            $ref: "#/definitions/cell"
-  uint32:
-    type: array
-    typeSize: 32
-    minItems: 1
-    maxItems: 1
-    items:
-      type: array
-      items:
-        $ref: "#/definitions/cell"
-      minItems: 1
-      maxItems: 1
+      $ref: "#/definitions/uint32-array"
 
-  int32-item:
+  int32:
     type: integer
     minimum: -2147483648
     maximum: 2147483647
-
+  int32-array:
+    type: array
+    minItems: 1
+    items:
+      $ref: "#/definitions/int32"
   int32-matrix:
     type: array
-    typeSize: 32
     minItems: 1
     items:
-      type: array
-      items:
-        $ref: "#/definitions/int32-item"
-  int32-array:
-    # For single cell arrays, we need to support encodings as either:
-    # prop = <0x1234 0x5678>;
-    # or
-    # prop = <0x1234>, <0x5678>;
-    typeSize: 32
-    anyOf:
-      - type: array
-        minItems: 1
-        maxItems: 1
-        items:
-          type: array
-          items:
-            $ref: "#/definitions/int32-item"
-      - type: array
-        items:
-          type: array
-          minItems: 1
-          maxItems: 1
-          items:
-            $ref: "#/definitions/int32-item"
-  int32:
-    type: array
-    typeSize: 32
-    minItems: 1
-    maxItems: 1
-    items:
-      type: array
-      items:
-        $ref: "#/definitions/int32-item"
-      minItems: 1
-      maxItems: 1
-
-  int64-item:
-    type: integer
-    minimum: -9223372036854775808
-    maximum: 9223372036854775807
+      $ref: "#/definitions/int32-array"
 
   int64:
-    type: array
-    minItems: 1
-    maxItems: 1
+    type: integer
     typeSize: 64
-    items:
-      type: array
-      items:
-        $ref: "#/definitions/int64-item"
-      minItems: 1
-      maxItems: 1
+    minimum: -9223372036854775808
+    maximum: 9223372036854775807
   int64-array:
     type: array
     minItems: 1
-    maxItems: 1
-    typeSize: 64
     items:
-      type: array
-      items:
-        $ref: "#/definitions/int64-item"
+      $ref: "#/definitions/int64"
   int64-matrix:
     type: array
     minItems: 1
-    typeSize: 64
     items:
-      type: array
-      items:
-        $ref: "#/definitions/int64-item"
-
-  uint64-item:
-    type: integer
-    minimum: 0
-    maximum: 0xffffffffffffffff
+      $ref: "#/definitions/int64-array"
 
   uint64:
-    type: array
-    minItems: 1
-    maxItems: 1
+    type: integer
     typeSize: 64
-    items:
-      type: array
-      items:
-        $ref: "#/definitions/uint64-item"
-      minItems: 1
-      maxItems: 1
+    minimum: 0
+    maximum: 0xffffffffffffffff
   uint64-array:
     type: array
     minItems: 1
-    maxItems: 1
-    typeSize: 64
     items:
-      type: array
-      items:
-        $ref: "#/definitions/uint64-item"
+      $ref: "#/definitions/uint64"
   uint64-matrix:
     type: array
     minItems: 1
-    typeSize: 64
     items:
-      type: array
-      items:
-        $ref: "#/definitions/uint64-item"
+      $ref: "#/definitions/uint64-array"
 
   phandle:
-    type: array
-    minItems: 1
+    $ref: "#/definitions/phandle-array"
     maxItems: 1
     items:
-      type: array
-      items:
-        phandle: true
-        type: integer
-        maximum: 0xffffffff
-      minItems: 1
       maxItems: 1
   phandle-array:
     type: array
@@ -341,14 +171,13 @@ definitions:
       minItems: 1
       items:
         - oneOf:
-            - phandle: true
-              type: integer
+            - type: integer
               minimum: 1
               maximum: 0xffffffff
             - type: integer
               const: 0
       additionalItems:
-        $ref: "#/definitions/cell"
+        $ref: "#/definitions/uint32"
 
   address:
     $ref: "#/definitions/uint32-matrix"

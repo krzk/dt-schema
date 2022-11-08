@@ -58,69 +58,6 @@ def _is_matrix_schema(subschema):
     return False
 
 
-int_array_re = re.compile('int(8|16|32|64)-array')
-unit_types_re = re.compile('-(bps|kBps|bits|percent|bp|m?hz|sec|ms|us|ns|ps|mm|nanoamp|(micro-)?ohms|micro(amp|watt)(-hours)?|milliwatt|microvolt|picofarads|(milli)?celsius|kelvin|k?pascal)$')
-
-# Remove this once we remove array to matrix fixups
-known_array_props = {
-    'assigned-clock-rates',
-    'linux,keycodes',
-    'max8997,pmic-buck1-dvs-voltage',
-    'max8997,pmic-buck2-dvs-voltage',
-    'max8997,pmic-buck5-dvs-voltage',
-}
-
-
-def is_int_array_schema(subschema, path=[]):
-    if 'allOf' in subschema:
-        # Find 'items'. It may be under the 'allOf' or at the same level
-        for item in subschema['allOf']:
-            if 'items' in item:
-                subschema = item
-                continue
-            if '$ref' in item:
-                return int_array_re.search(item['$ref'])
-    if '$ref' in subschema:
-        return int_array_re.search(subschema['$ref'])
-    else:
-        if [p for p in path if unit_types_re.search(p)] or set(path) & known_array_props:
-            return True
-
-    return 'items' in subschema and \
-        ((isinstance(subschema['items'], list) and _is_int_schema(subschema['items'][0])) or
-         (isinstance(subschema['items'], dict) and _is_int_schema(subschema['items'])))
-
-
-# Fixup an int array that only defines the number of items.
-def _fixup_int_array_min_max_to_matrix(subschema, path=[]):
-    if not is_int_array_schema(subschema, path=path):
-        return
-
-    if 'allOf' in subschema:
-        # Find 'min/maxItems'. It may be under the 'allOf' or at the same level
-        for item in subschema['allOf']:
-            if item.keys() & {'minItems', 'maxItems'}:
-                subschema = item
-                break
-
-    if 'items' in subschema and isinstance(subschema['items'], list):
-        return
-
-    if _is_matrix_schema(subschema):
-        return
-
-    tmpsch = {}
-    if 'minItems' in subschema:
-        tmpsch['minItems'] = subschema.pop('minItems')
-    if 'maxItems' in subschema:
-        tmpsch['maxItems'] = subschema.pop('maxItems')
-    if 'items' in subschema:
-        tmpsch['items'] = subschema.pop('items')
-
-    if tmpsch:
-        subschema['items'] = tmpsch
-        subschema['maxItems'] = 1
-
 def _fixup_remove_empty_items(subschema):
     if 'items' not in subschema:
         return
@@ -140,33 +77,31 @@ def _fixup_remove_empty_items(subschema):
         del subschema['items']
 
 
-def _fixup_int_array_items_to_matrix(subschema, path=[]):
-    itemkeys = ('items', 'minItems', 'maxItems', 'uniqueItems', 'default')
-    if not is_int_array_schema(subschema, path=path):
+# Keep in sync with property-units.yaml
+unit_types_array_re = re.compile('-(kBps|bits|percent|bp|mhz|sec|ms|us|ns|ps|mm|nanoamp|(micro-)?ohms|micro(amp|watt)(-hours)?|milliwatt|(femto|pico)farads|(milli)?celsius|kelvin|k?pascal)$')
+unit_types_matrix_re = re.compile('-(hz|microvolt)$')
+
+def _fixup_unit_suffix_props(subschema, path=[]):
+    path.reverse()
+    for idx, p in enumerate(path):
+        if p in {'properties', '$defs'}:
+            propname = path[idx - 1]
+            break
+    else:
         return
 
-    if 'allOf' in subschema:
-        # Find 'items'. It may be under the 'allOf' or at the same level
-        for item in subschema['allOf']:
-            if 'items' in item:
-                subschema = item
-                break
-
-    if 'items' not in subschema or _is_matrix_schema(subschema):
-        return
-
-    if isinstance(subschema['items'], dict):
-        subschema['items'] = {k: subschema.pop(k) for k in itemkeys if k in subschema}
-
-    if isinstance(subschema['items'], list):
-        subschema['items'] = [{k: subschema.pop(k) for k in itemkeys if k in subschema}]
-
-
-def _fixup_scalar_to_array(subschema):
-    if not _is_int_schema(subschema):
-        return
-
-    subschema['items'] = [{'items': [_extract_single_schemas(subschema)]}]
+    if unit_types_array_re.search(propname) and _is_int_schema(subschema):
+        subschema['items'] = [_extract_single_schemas(subschema)]
+    elif unit_types_matrix_re.search(propname):
+        if _is_matrix_schema(subschema):
+            return
+        if {'items', 'minItems', 'maxItems'} & subschema.keys():
+            subschema['items'] = [copy.deepcopy(subschema)]
+            subschema.pop('minItems', None)
+            subschema.pop('maxItems', None)
+            #print(subschema, file=sys.stderr)
+        elif _is_int_schema(subschema):
+            subschema['items'] = [{'items': [_extract_single_schemas(subschema)]}]
 
 
 def _fixup_items_size(schema, path=[]):
@@ -244,10 +179,8 @@ def fixup_vals(schema, path=[]):
 
     _fixup_reg_schema(schema, path=path)
     _fixup_remove_empty_items(schema)
-    _fixup_int_array_min_max_to_matrix(schema, path=path)
-    _fixup_int_array_items_to_matrix(schema, path=path)
+    _fixup_unit_suffix_props(schema, path=path)
     _fixup_string_to_array(schema)
-    _fixup_scalar_to_array(schema)
     _fixup_items_size(schema, path=path)
 
     fixup_schema_to_201909(schema)

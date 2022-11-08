@@ -178,15 +178,19 @@ def prop_value(validator, nodename, p):
         for i in type_struct.iter_unpack(data):
             val_int += [dtschema.sized_int(i[0], size=(type_struct.size * 8))]
 
-    if 'matrix' in fmt or 'phandle-array' in fmt:
+    if 'matrix' in fmt or fmt in {'phandle', 'phandle-array', 'address'}:
         dim = validator.property_get_type_dim(p.name)
-    if dim:
-        stride = get_stride(len(val_int), dim)
+        if dim:
+            stride = get_stride(len(val_int), dim)
 
-        #print(p.name, dim, stride, len(val_int))
-        return [val_int[i:i+stride] for i in range(0, len(val_int), stride)]
+            #print(p.name, dim, stride, len(val_int))
+            return [val_int[i:i+stride] for i in range(0, len(val_int), stride)]
+        else:
+            return [val_int]
+    elif 'array' not in fmt and len(val_int) == 1:
+        return val_int[0]
 
-    return [val_int]
+    return val_int
 
 
 def node_props(validator, fdt, nodename, offset):
@@ -249,7 +253,7 @@ def fdt_scan_node(validator, fdt, nodename, offset):
     node_dict = node_props(validator, fdt, nodename, offset)
     if 'phandle' in node_dict:
         #print('phandle', node_dict['phandle'])
-        phandles[node_dict['phandle'][0][0]] = node_dict
+        phandles[node_dict['phandle']] = node_dict
 
     offset = fdt.first_subnode(offset, QUIET_NOTFOUND)
     while offset >= 0:
@@ -285,7 +289,7 @@ def _get_cells_size(node, cellname):
     if isinstance(cellname, int):
         return cellname
     elif cellname in node:
-        return node[cellname][0][0]
+        return node[cellname]
     else:
         return 0
 

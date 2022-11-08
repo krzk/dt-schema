@@ -318,7 +318,7 @@ def process_schemas(schema_paths, core_schema=True):
 
 def typeSize(validator, typeSize, instance, schema):
     try:
-        size = instance[0][0].size
+        size = instance.size
     except:
         size = 32
 
