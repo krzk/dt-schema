@@ -4,7 +4,19 @@ $id: http://devicetree.org/schemas/gpio/gpio.yaml#
 $schema: http://devicetree.org/meta-schemas/base.yaml#
 
 title: GPIO Controller Common Properties
-description: Schema for GPIO devicetree bindings
+
+description: |
+  Every GPIO controller node must contain both an empty "gpio-controller"
+  property, and a #gpio-cells integer property, which indicates the number of
+  cells in a gpio-specifier.
+
+  Some system-on-chips (SoCs) use the concept of GPIO banks. A GPIO bank is an
+  instance of a hardware IP core on a silicon die, usually exposed to the
+  programmer as a coherent range of I/O addresses. Usually each such bank is
+  exposed in the device tree as an individual gpio-controller node, reflecting
+  the fact that the hardware was synthesized by reusing the same IP block a few
+  times over.
+
 maintainers:
   - Rob Herring <robh@kernel.org>
 
@@ -17,13 +29,43 @@ properties:
     $ref: /schemas/types.yaml#/definitions/flag
   gpio-line-names:
     $ref: /schemas/types.yaml#/definitions/non-unique-string-array
+    description: >
+      An array of strings defining the names of the GPIO lines going out of the
+      GPIO controller. This name should be the most meaningful producer name for
+      the system, such as a rail name indicating the usage. Package names such
+      as pin name are discouraged: such lines have opaque names (since they are
+      by definition generic purpose) and such names are usually not very
+      helpful. For example "MMC-CD", "Red LED Vdd" and "ethernet reset" are
+      reasonable line names as they describe what the line is used for. "GPIO0"
+      is not a good name to give to a GPIO line. Placeholders are discouraged:
+      rather use the "" (blank string) if the use of the GPIO line is undefined
+      in your design. The names are assigned starting from line offset 0 from
+      left to right from the passed array. An incomplete array (where the number
+      of passed named are less than ngpios) will still be used up until the last
+      provided valid line index.
+
   ngpios:
     $ref: /schemas/types.yaml#/definitions/uint32
+    description: >
+      Indicates the number of in-use slots of available slots for GPIOs. The
+      typical example is something like this: the hardware register is 32 bits
+      wide, but only 18 of the bits have a physical counterpart. The driver is
+      generally written so that all 32 bits can be used, but the IP block is
+      reused in a lot of designs, some using all 32 bits, some using 18 and some
+      using 12. In this case, setting "ngpios = <18>;" informs the driver that
+      only the first 18 GPIOs, at local offset 0 .. 17, are in use. If these
+      GPIOs do not happen to be the first N GPIOs at offset 0...N-1, an
+      additional set of tuples is needed to specify which GPIOs are unusable,
+      with the gpio-reserved-ranges binding.
+
   gpio-reserved-ranges:
     $ref: /schemas/types.yaml#/definitions/uint32-matrix
     items:
       minItems: 2
       maxItems: 2
+    description:
+      Indicates the start and size of the GPIOs that can't be used.
+
   gpio-ranges:
     $ref: /schemas/types.yaml#/definitions/phandle-array
     items:
