@@ -44,8 +44,10 @@ jobs:
         if [ "$DISTRO" = "archilinux" ]; then
           pacman -Sy --noconfirm dtc
         elif [ "$DISTRO" = "debian" ] || [ "$DISTRO" = "ubuntu" ]; then
+          apt-get update
           apt-get -qq -y install device-tree-compiler
         elif [ "$DISTRO" = "fedora" ]; then
+          dnf update
           dnf -y install dtc
         else
           echo "Unknown distro, continuing"
