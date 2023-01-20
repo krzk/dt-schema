@@ -9,6 +9,24 @@ jobs:
       fail-fast: false
       matrix:
         python-version: ['3.7', '3.8', '3.9', '3.10', '3.11']
+        container:
+          - archlinux:latest
+          - debian:testing
+          - debian:stable
+          - debian:bookworm
+          - debian:bullseye
+          - debian:buster
+          - debian:stretch
+          - fedora:latest
+          - fedora:37
+          - fedora:36
+          - ubuntu:kinetic
+          - ubuntu:jammy
+          - ubuntu:focal
+          - ubuntu:bionic
+
+    container:
+      image: ${{ matrix.container }}
 
     steps:
     - uses: actions/checkout@v3
@@ -17,8 +35,21 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
+      shell: bash
       run: |
-        sudo apt-get -qq -y install device-tree-compiler
+        DISTRO=${{ matrix.container }}
+        DISTRO="${DISTRO%%:*}"
+        echo "Distro: $DISTRO"
+        python --version
+        if [ "$DISTRO" = "archilinux" ]; then
+          pacman -Sy --noconfirm dtc
+        elif [ "$DISTRO" = "debian" ] || [ "$DISTRO" = "ubuntu" ]; then
+          apt-get -qq -y install device-tree-compiler
+        elif [ "$DISTRO" = "fedora" ]; then
+          dnf -y install dtc
+        else
+          echo "Unknown distro, continuing"
+        fi
         python -m pip install --upgrade pip
         python -m pip install flake8
         python -m pip install .
