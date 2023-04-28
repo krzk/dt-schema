@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: (GPL2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+# Copyright 2024 Arm Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pci/pci-device.yaml#
+$schema: http://devicetree.org/meta-schemas/base.yaml#
+
+title: PCI Device Node Common Properties
+
+description: |
+  Common properties for PCI device nodes. Based on:
+
+  PCI Bus Binding to: IEEE Std 1275-1994
+  http://www.devicetree.org/open-firmware/bindings/pci/pci2_1.pdf
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+
+properties:
+  compatible:
+    contains:
+      pattern: '^(pci[0-9a-f]{2,4},[0-9a-f]{1,4}|pciclass,[01][0-9a-f]{3}([0-9a-f]{2})?)$'
+
+  reg:
+    description:
+      The first entry must be the configuration space. The bus number
+      generally 0/ignored for FDT. See section 4.1.1 in PCI bus binding
+      for further information.
+    additionalItems: true
+    items:
+      - description: Configuration Space for the device
+        items:
+          - maximum: 0x00ffff00   # Should be 0xff00
+            multipleOf: 0x100
+          - const: 0
+          - const: 0
+          - const: 0
+          - const: 0
+
+  interrupts:
+    items:
+      - items:
+          - enum: [1, 2, 3, 4]  # INTA, INTB, INTC, INTD
+
+  assigned-addresses:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+
+  vendor-id:
+    description: The PCI vendor ID
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  device-id:
+    description: The PCI device ID
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+required:
+  - reg
+
+additionalProperties: true

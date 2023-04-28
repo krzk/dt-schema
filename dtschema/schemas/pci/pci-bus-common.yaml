@@ -1,0 +1,165 @@
+# SPDX-License-Identifier: (GPL2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+# Copyright 2024 Arm Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pci/pci-bus-common.yaml#
+$schema: http://devicetree.org/meta-schemas/base.yaml#
+
+title: PCI Bus Common Properties
+
+description: |
+  Common properties for PCI bus structure.
+
+  PCI bus bridges have standardized Device Tree bindings:
+
+  PCI Bus Binding to: IEEE Std 1275-1994
+  http://www.devicetree.org/open-firmware/bindings/pci/pci2_1.pdf
+
+  And for the interrupt mapping part:
+
+  Open Firmware Recommended Practice: Interrupt Mapping
+  http://www.devicetree.org/open-firmware/practice/imap/imap0_9d.pdf
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+
+properties:
+  $nodename:
+    pattern: "^pcie?@"
+
+  ranges:
+    oneOf:
+      - type: boolean
+      - minItems: 1
+        maxItems: 32    # Should be enough
+        items:
+          minItems: 5
+          maxItems: 8
+          additionalItems: true
+          items:
+            - enum:
+                - 0x01000000
+                - 0x02000000
+                - 0x03000000
+                - 0x42000000
+                - 0x43000000
+                - 0x81000000
+                - 0x82000000
+                - 0x83000000
+                - 0xc2000000
+                - 0xc3000000
+
+  dma-ranges:
+    oneOf:
+      - type: boolean
+      - minItems: 1
+        maxItems: 32    # Should be enough
+        items:
+          minItems: 5
+          maxItems: 8
+          additionalItems: true
+          items:
+            - enum:
+                - 0x02000000
+                - 0x03000000
+                - 0x42000000
+                - 0x43000000
+
+  "#address-cells":
+    const: 3
+
+  "#size-cells":
+    const: 2
+
+  device_type:
+    const: pci
+
+  bus-range:
+    $ref: /schemas/types.yaml#/definitions/uint32-array
+    minItems: 2
+    maxItems: 2
+    items:
+      maximum: 255
+
+  external-facing:
+    description:
+      When present, the port is externally facing. All bridges and endpoints
+      downstream of this port are external to the machine. The OS can, for
+      example, use this information to identify devices that cannot be
+      trusted with relaxed DMA protection, as users could easily attach
+      malicious devices to this port.
+    type: boolean
+
+  "#interrupt-cells":
+    const: 1
+
+  interrupt-map: true
+#    minItems: 1
+#    maxItems: 88    # 22 IDSEL x 4 IRQs
+#    items:
+#      minItems: 6   # 3 addr cells, 1 PCI IRQ cell, 1 phandle, 1+ parent addr and IRQ cells
+#      maxItems: 16
+
+  interrupt-map-mask:
+    items:
+      - description: PCI high address cell
+        minimum: 0
+        maximum: 0xff00
+      - description: PCI mid address cell
+        const: 0
+      - description: PCI low address cell
+        const: 0
+      - description: PCI IRQ cell
+        minimum: 0
+        maximum: 7
+
+  max-link-speed:
+    description:
+      If present this property specifies PCI generation number for link
+      capability.  Host drivers could add this as a strategy to avoid
+      unnecessary operation for unsupported link speed, for instance, trying to
+      do training for unsupported link speed, etc.
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [ 1, 2, 3, 4 ]
+
+  num-lanes:
+    description: The number of PCIe lanes
+    $ref: /schemas/types.yaml#/definitions/uint32
+    enum: [ 1, 2, 4, 8, 16, 32 ]
+
+  reset-gpios:
+    description: GPIO controlled connection to PERST# signal
+    maxItems: 1
+
+  slot-power-limit-milliwatt:
+    description:
+      If present, specifies slot power limit in milliwatts.
+      This property is invalid in host bridge nodes.
+    maxItems: 1
+
+  supports-clkreq:
+    description:
+      If present this property specifies that CLKREQ signal routing exists from
+      root port to downstream device and host bridge drivers can do programming
+      which depends on CLKREQ signal existence. For example, programming root port
+      not to advertise ASPM L1 Sub-States support if there is no CLKREQ signal.
+    type: boolean
+
+  aspm-no-l0s:
+    description: Disables ASPM L0s capability
+    type: boolean
+
+patternProperties:
+  "@1?[0-9a-f](,[0-7])?$":
+    type: object
+    $ref: pci-device.yaml#
+    additionalProperties: true
+
+required:
+  - device_type
+  - ranges
+  - "#address-cells"
+  - "#size-cells"
+
+additionalProperties: true

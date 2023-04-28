@@ -1,0 +1,60 @@
+# SPDX-License-Identifier: (GPL2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+# Copyright 2024 Arm Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pci/pci-host-bridge.yaml#
+$schema: http://devicetree.org/meta-schemas/base.yaml#
+
+title: PCI Host Bridge Nodes
+
+description: |
+  Common properties for PCI host bridge nodes. PCI host bridges implement the
+  PCI bus binding plus additional properties for mapping host resources into
+  PCI space.
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+
+allOf:
+  - $ref: pci-bus-common.yaml#
+  - $ref: pci-iommu.yaml#
+
+properties:
+  linux,pci-domain:
+    description:
+      If present this property assigns a fixed PCI domain number to a host bridge,
+      otherwise an unstable (across boots) unique number will be assigned.
+      It is required to either not set this property at all or set it for all
+      host bridges in the system, otherwise potentially conflicting domain numbers
+      may be assigned to root buses behind different host bridges.  The domain
+      number for each host bridge in the system must be unique.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  msi-map:
+    $ref: /schemas/types.yaml#/definitions/uint32-matrix
+    items:
+      items:
+        - description: The RID base matched by the entry
+        - description: phandle to msi-controller node
+        - description: (optional) The msi-specifier produced for the first RID matched
+            by the entry. Currently, msi-specifier is 0 or 1 cells.
+        - description: The length of consecutive RIDs following the RID base
+
+  msi-map-mask:
+    description: A mask to be applied to each Requester ID prior to being
+      mapped to an msi-specifier per the msi-map property.
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  vendor-id:
+    description: The PCI vendor ID
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+  device-id:
+    description: The PCI device ID
+    $ref: /schemas/types.yaml#/definitions/uint32
+
+dependentRequired:
+  msi-map-mask: [ msi-map ]
+
+additionalProperties: true

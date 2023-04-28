@@ -1,0 +1,31 @@
+# SPDX-License-Identifier: (GPL2.0-only OR BSD-2-Clause)
+# Copyright 2018 Linaro Ltd.
+# Copyright 2024 Arm Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/pci/pci-pci-bridge.yaml#
+$schema: http://devicetree.org/meta-schemas/base.yaml#
+
+title: PCI-PCI Bridge Nodes
+
+description: |
+  PCI-PCI Bridge nodes are both a PCI device and a PCI bus.
+
+  PCI-PCI bridges have standardized Device Tree bindings:
+
+  PCI Bus Binding to: IEEE Std 1275-1994
+  http://www.devicetree.org/open-firmware/bindings/pci/pci2_1.pdf
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+
+allOf:
+  - $ref: pci-device.yaml#
+  - $ref: pci-bus-common.yaml#
+
+properties:
+  compatible:
+    contains:
+      const: pciclass,0604
+
+unevaluatedProperties: false
