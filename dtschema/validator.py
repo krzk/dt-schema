@@ -9,7 +9,6 @@ import copy
 import glob
 import json
 import jsonschema
-import ruamel.yaml
 
 from jsonschema.exceptions import RefResolutionError
 
@@ -347,6 +346,7 @@ class DTValidator:
                 except json.decoder.JSONDecodeError:
                     try:
                         f.seek(0)
+                        import ruamel.yaml
                         yaml = ruamel.yaml.YAML(typ='safe')
                         schema_cache = yaml.load(f.read())
                     except:

@@ -4,7 +4,6 @@
 # Python library for Devicetree schema validation
 import sys
 import os
-import ruamel.yaml
 import re
 import copy
 import jsonschema
@@ -16,13 +15,6 @@ from jsonschema.exceptions import RefResolutionError
 schema_base_url = "http://devicetree.org/"
 schema_basedir = os.path.dirname(os.path.abspath(__file__))
 
-rtyaml = ruamel.yaml.YAML(typ='rt')
-rtyaml.allow_duplicate_keys = False
-rtyaml.preserve_quotes = True
-
-yaml = ruamel.yaml.YAML(typ='safe')
-yaml.allow_duplicate_keys = False
-
 
 def path_to_obj(tree, path):
     for pc in path:
@@ -31,6 +23,8 @@ def path_to_obj(tree, path):
 
 
 def get_line_col(tree, path, obj=None):
+    import ruamel.yaml
+
     if isinstance(obj, ruamel.yaml.comments.CommentedBase):
         return obj.lc.line, obj.lc.col
     obj = path_to_obj(tree, path)
@@ -64,9 +58,17 @@ class DTSchema(dict):
     def __init__(self, schema_file, line_numbers=False):
         self.paths = [(schema_base_url, schema_basedir + '/')]
         with open(schema_file, 'r', encoding='utf-8') as f:
+            import ruamel.yaml
+
             if line_numbers:
+                rtyaml = ruamel.yaml.YAML(typ='rt')
+                rtyaml.allow_duplicate_keys = False
+                rtyaml.preserve_quotes = True
+
                 schema = rtyaml.load(f.read())
             else:
+                yaml = ruamel.yaml.YAML(typ='safe')
+                yaml.allow_duplicate_keys = False
                 schema = yaml.load(f.read())
 
         self.filename = os.path.abspath(schema_file)
@@ -85,6 +87,9 @@ class DTSchema(dict):
             if not os.path.isfile(filename):
                 continue
             with open(filename, 'r', encoding='utf-8') as f:
+                import ruamel.yaml
+                yaml = ruamel.yaml.YAML(typ='safe')
+                yaml.allow_duplicate_keys = False
                 return yaml.load(f.read())
 
         raise RefResolutionError('Error in referenced schema matching $id: ' + uri)
