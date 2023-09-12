@@ -45,6 +45,15 @@ def get_line_col(tree, path, obj=None):
         return obj.lc.key(path[-1])
     return -1, -1
 
+def _is_node_schema(schema):
+    return isinstance(schema, dict) and \
+           (('type' in schema and schema['type'] == 'object') or
+            schema.keys() & {'properties', 'patternProperties'})
+
+
+def _schema_allows_no_undefined_props(schema):
+    return not schema.get("additionalProperties", True) or \
+           not schema.get("unevaluatedProperties", True)
 
 class DTSchema(dict):
     DtValidator = jsonschema.validators.extend(
@@ -143,15 +152,36 @@ class DTSchema(dict):
         dtschema.fixups.fixup_schema(processed_schema)
         return processed_schema
 
-    def _check_schema_refs(self, schema):
-        if isinstance(schema, dict) and '$ref' in schema:
-            self.resolver.resolve(schema['$ref'])
-        elif isinstance(schema, dict):
+    def _check_schema_refs(self, schema, parent=None, is_common=False, has_constraint=False):
+        if not parent:
+            is_common = not _schema_allows_no_undefined_props(schema)
+        if isinstance(schema, dict):
+            if parent in {'if', 'select', 'definitions', '$defs', 'then',
+                          'else', 'dependencies', 'dependentSchemas'}:
+                return
+
+            if _is_node_schema(schema):
+                has_constraint = _schema_allows_no_undefined_props(schema)
+
+            if not is_common and _is_node_schema(schema) and \
+               (schema.keys() & {'properties', 'patternProperties', '$ref'}):
+                ref_has_constraint = False
+                if '$ref' in schema:
+                    url, ref_sch = self.resolver.resolve(schema['$ref'])
+
+                    ref_has_constraint = _schema_allows_no_undefined_props(ref_sch)
+                if not ref_has_constraint and \
+                   not (has_constraint or (schema.keys() & {'additionalProperties', 'unevaluatedProperties'})):
+                    print(f"{self.filename}: {parent}: Missing additionalProperties/unevaluatedProperties constraint\n",
+                          file=sys.stderr)
+
             for k, v in schema.items():
-                self._check_schema_refs(v)
+                self._check_schema_refs(v, parent=k, is_common=is_common,
+                                        has_constraint=has_constraint)
         elif isinstance(schema, (list, tuple)):
             for i in range(len(schema)):
-                self._check_schema_refs(schema[i])
+                self._check_schema_refs(schema[i], parent=parent, is_common=is_common,
+                                        has_constraint=has_constraint)
 
     def check_schema_refs(self):
         id = self['$id'].rstrip('#')
