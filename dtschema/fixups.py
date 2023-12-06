@@ -285,35 +285,34 @@ def walk_properties(schema, path=[]):
     fixup_vals(schema, path=path)
 
 
-def fixup_interrupts(schema):
+def fixup_interrupts(schema, path):
     # Supporting 'interrupts' implies 'interrupts-extended' is also supported.
-    if 'properties' not in schema:
-        return
+    if 'properties' in schema:
+        # Any node with 'interrupts' can have 'interrupt-parent'
+        if schema['properties'].keys() & {'interrupts', 'interrupt-controller'} and \
+        'interrupt-parent' not in schema['properties']:
+            schema['properties']['interrupt-parent'] = True
 
-    # Any node with 'interrupts' can have 'interrupt-parent'
-    if schema['properties'].keys() & {'interrupts', 'interrupt-controller'} and \
-       'interrupt-parent' not in schema['properties']:
-        schema['properties']['interrupt-parent'] = True
+        if 'interrupts' not in schema['properties'] or 'interrupts-extended' in schema['properties']:
+            return
 
-    if 'interrupts' not in schema['properties'] or 'interrupts-extended' in schema['properties']:
-        return
+        schema['properties']['interrupts-extended'] = copy.deepcopy(schema['properties']['interrupts'])
 
-    schema['properties']['interrupts-extended'] = copy.deepcopy(schema['properties']['interrupts'])
-
-    if not ('required' in schema and 'interrupts' in schema['required']):
-        return
-
-    # Currently no better way to express either 'interrupts' or 'interrupts-extended'
-    # is required. If this fails validation, the error reporting is the whole
-    # schema file fails validation
-    reqlist = [{'required': ['interrupts']}, {'required': ['interrupts-extended']}]
-    if 'oneOf' in schema:
-        if 'allOf' not in schema:
-            schema['allOf'] = []
-        schema['allOf'].append({'oneOf': reqlist})
-    else:
-        schema['oneOf'] = reqlist
-    schema['required'].remove('interrupts')
+    if 'required' in schema and 'interrupts' in schema['required'] and \
+       (len(path) == 0 or path[-1] != 'oneOf'):
+        # Currently no better way to express either 'interrupts' or 'interrupts-extended'
+        # is required. If this fails validation, the error reporting is the whole
+        # schema file fails validation
+        reqlist = [{'required': ['interrupts']}, {'required': ['interrupts-extended']}]
+        if 'oneOf' in schema:
+            if 'allOf' not in schema:
+                schema['allOf'] = []
+            schema['allOf'].append({'oneOf': reqlist})
+        else:
+            schema['oneOf'] = reqlist
+        schema['required'].remove('interrupts')
+        if len(schema['required']) == 0:
+            schema.pop('required')
 
 
 known_variable_matrix_props = {
@@ -327,7 +326,7 @@ def fixup_sub_schema(schema, path=[]):
         return
 
     schema.pop('description', None)
-    fixup_interrupts(schema)
+    fixup_interrupts(schema, path)
     fixup_node_props(schema)
 
     # 'additionalProperties: true' doesn't work with 'unevaluatedProperties', so
