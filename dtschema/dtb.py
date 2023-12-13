@@ -372,7 +372,8 @@ def fixup_gpios(dt):
         if isinstance(v, dict):
             fixup_gpios(v)
         elif (k.endswith('-gpios') or k.endswith('-gpio') or k in {'gpio', 'gpios'}) and \
-            not k.endswith(',nr-gpios'):
+             not k.endswith(',nr-gpios') and \
+             isinstance(v, list):
             i = 0
             dt[k] = []
             val = v[0]
