@@ -331,15 +331,19 @@ class DTValidator:
         self.schemas = {}
         self.resolver = jsonschema.RefResolver('', None, handlers={'http': self.http_handler})
 
-        yaml = ruamel.yaml.YAML(typ='safe')
-
         if len(schema_files) == 1 and os.path.isfile(schema_files[0]):
             # a processed schema file
             with open(schema_files[0], 'r', encoding='utf-8') as f:
-                if schema_files[0].endswith('.json'):
+                try:
                     schema_cache = json.load(f)
-                else:
-                    schema_cache = yaml.load(f.read())
+                except json.decoder.JSONDecodeError:
+                    try:
+                        f.seek(0)
+                        yaml = ruamel.yaml.YAML(typ='safe')
+                        schema_cache = yaml.load(f.read())
+                    except:
+                        print("preprocessed schema file is not valid JSON or YAML\n", file=sys.stderr)
+                        raise
 
             # Convert old format to new
             if isinstance(schema_cache, list):
