@@ -330,6 +330,7 @@ class DTValidator:
     def __init__(self, schema_files, filter=None):
         self.schemas = {}
         self.resolver = jsonschema.RefResolver('', None, handlers={'http': self.http_handler})
+        schema_cache = None
 
         if len(schema_files) == 1 and os.path.isfile(schema_files[0]):
             # a processed schema file
@@ -345,6 +346,11 @@ class DTValidator:
                         print("preprocessed schema file is not valid JSON or YAML\n", file=sys.stderr)
                         raise
 
+            # Ensure the cache is a processed schema and not just a single schema file
+            if '$id' in schema_cache:
+                schema_cache = None
+
+        if schema_cache:
             # Convert old format to new
             if isinstance(schema_cache, list):
                 d = {}
