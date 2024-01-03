@@ -132,7 +132,9 @@ class DTSchema(dict):
             for error in self.iter_errors():
                 raise error
         else:
-            for error in self.DtValidator(self.DtValidator.META_SCHEMA).iter_errors(self):
+            # Using the draft7 metaschema because 2019-09 with $recursiveRef seems broken
+            # Probably fixed with referencing library
+            for error in self.DtValidator(jsonschema.Draft7Validator.META_SCHEMA).iter_errors(self):
                 scherr = jsonschema.exceptions.SchemaError.create_from(error)
                 raise scherr
 
