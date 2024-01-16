@@ -24,12 +24,7 @@ schema_basedir = os.path.dirname(os.path.abspath(__file__))
 def _merge_dim(dim1, dim2):
     d = []
     for i in range(0, 2):
-        if dim1[i] == (0, 0):
-            d.insert(i, dim2[i])
-        elif dim2[i] == (0, 0):
-            d.insert(i, dim1[i])
-        else:
-            d.insert(i, (min(dim1[i] + dim2[i]), max(dim1[i] + dim2[i])))
+        d.insert(i, (min(dim1[i][0], dim2[i][0]), max(dim1[i][1], dim2[i][1])))
 
     return tuple(d)
 
@@ -118,7 +113,15 @@ def _extract_prop_type(props, schema, propname, subschema, is_pattern):
 
     # handle matrix dimensions
     if prop_type == 'phandle-array' or prop_type.endswith('-matrix'):
-        dim = (_get_array_range(subschema), _get_array_range(subschema.get('items', {})))
+        outer = _get_array_range(subschema)
+        if 'items' in subschema:
+            if isinstance(subschema['items'], list):
+                inner = _get_array_range(subschema['items'][0])
+            else:
+                inner = _get_array_range(subschema.get('items', {}))
+        else:
+            inner = (0, 0)
+        dim = (outer, inner)
         new_prop['dim'] = dim
     else:
         dim = ((0, 0), (0, 0))
@@ -494,7 +497,8 @@ class DTValidator:
 
     def property_has_fixed_dimensions(self, propname):
         dim = self.property_get_type_dim(propname)
-        if dim and dim[0][0] == dim[0][1] or dim[1][0] == dim[1][1]:
+        if dim and ((dim[0][0] > 0 and dim[0][0] == dim[0][1]) or \
+           (dim[1][0] > 0 and dim[1][0] == dim[1][1])):
             return True
 
         return False

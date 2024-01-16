@@ -58,22 +58,6 @@ def _is_matrix_schema(subschema):
     return False
 
 
-# If we have a matrix with variable inner and outer dimensions, then drop the dimensions
-# because we have no way to reconstruct them.
-def _fixup_int_matrix(subschema):
-    if not _is_matrix_schema(subschema):
-        return
-
-    outer_dim = _get_array_range(subschema)
-    inner_dim = _get_array_range(subschema.get('items', {}))
-
-    if outer_dim[0] != outer_dim[1] and inner_dim[0] != inner_dim[1]:
-        subschema.pop('items', None)
-        subschema.pop('maxItems', None)
-        subschema.pop('minItems', None)
-        subschema['type'] = 'array'
-
-
 int_array_re = re.compile('int(8|16|32|64)-array')
 unit_types_re = re.compile('-(bps|kBps|bits|percent|bp|m?hz|sec|ms|us|ns|ps|mm|nanoamp|(micro-)?ohms|micro(amp|watt)(-hours)?|milliwatt|microvolt|picofarads|(milli)?celsius|kelvin|k?pascal)$')
 
@@ -258,7 +242,6 @@ def fixup_vals(schema, path=[]):
 
     _fixup_reg_schema(schema, path=path)
     _fixup_remove_empty_items(schema)
-    _fixup_int_matrix(schema)
     _fixup_int_array_min_max_to_matrix(schema, path=path)
     _fixup_int_array_items_to_matrix(schema, path=path)
     _fixup_string_to_array(schema)

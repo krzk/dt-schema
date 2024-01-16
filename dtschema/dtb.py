@@ -52,19 +52,25 @@ def bytes_to_string(b):
         return None
 
 
-def get_stride(len, dim):
-    match = 0
-    if min(dim) == 0:
-        return 0
-    for d in range(dim[0], dim[1] + 1):
-        if not len % d:
-            match += 1
-            stride = d
-    if match == 1:
-        return stride
+def get_stride(prop_len, dim):
 
-    return 0
+    # If multiple dimensions, check if one and only one dimension fits
+    match = []
+    for outer in range(dim[0][0], dim[0][1] + 1):
+        for inner in range(dim[1][0], dim[1][1] + 1):
+            if outer * inner == prop_len:
+                match += [inner]
 
+    if len(match) > 0:
+        return match[0]
+
+    if dim[1][0] > 0 and dim[1][0] == dim[1][1]:
+        return dim[1][0]
+
+    if dim[0][0] > 0 and dim[0][0] == dim[0][1]:
+        return int(prop_len / dim[0][0])
+
+    return prop_len
 
 def prop_value(validator, nodename, p):
     # First, check for a boolean type
@@ -164,21 +170,9 @@ def prop_value(validator, nodename, p):
     if 'matrix' in fmt or 'phandle-array' in fmt:
         dim = validator.property_get_type_dim(p.name)
     if dim:
-        if max(dim[1]) and dim[1][0] == dim[1][1]:
-            stride = dim[1][1]
-        elif max(dim[0]) and dim[0][0] == dim[0][1]:
-            stride, rem = divmod(len(val_int), dim[0][1])
-            if rem:
-                stride = len(val_int)
-        else:
-            # If multiple dimensions, check if one and only one dimension fits
-            stride = get_stride(len(val_int), dim[1])
-            #if stride == 0:
-            #    stride = get_stride(len(val_int), dim[0])
-            if stride == 0:
-                stride = len(val_int)
+        stride = get_stride(len(val_int), dim)
 
-        #print(p.name, dim, stride)
+        #print(p.name, dim, stride, len(val_int))
         return [val_int[i:i+stride] for i in range(0, len(val_int), stride)]
 
     return [val_int]
