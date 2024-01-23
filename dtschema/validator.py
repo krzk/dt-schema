@@ -24,7 +24,11 @@ schema_basedir = os.path.dirname(os.path.abspath(__file__))
 def _merge_dim(dim1, dim2):
     d = []
     for i in range(0, 2):
-        d.insert(i, (min(dim1[i][0], dim2[i][0]), max(dim1[i][1], dim2[i][1])))
+        minimum = min(dim1[i][0], dim2[i][0])
+        maximum = max(dim1[i][1], dim2[i][1])
+        if maximum == 1:
+            minimum = 1
+        d.insert(i, (minimum, maximum))
 
     return tuple(d)
 
