@@ -128,14 +128,14 @@ def _extract_prop_type(props, schema, propname, subschema, is_pattern):
         dim = (outer, inner)
         new_prop['dim'] = dim
     else:
-        dim = ((0, 0), (0, 0))
+        dim = None
 
     dup_prop = None
     for p in props[propname]:
         if p['type'] is None:
             dup_prop = p
             break
-        if dim != ((0, 0), (0, 0)) and \
+        if dim and \
            (p['type'] == 'phandle-array' or p['type'].endswith('-matrix')):
             if 'dim' not in p:
                 p['dim'] = dim
