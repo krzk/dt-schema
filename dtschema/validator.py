@@ -137,12 +137,11 @@ def _extract_prop_type(props, schema, propname, subschema, is_pattern):
             break
         if dim and \
            (p['type'] == 'phandle-array' or p['type'].endswith('-matrix')):
-            if 'dim' not in p:
-                p['dim'] = dim
-            elif p['dim'] != dim:
-                # Conflicting dimensions
-                p['dim'] = _merge_dim(p['dim'], dim)
-            return
+            p['dim'] = _merge_dim(p['dim'], dim)
+            if schema['$id'] not in p['$id']:
+                p['$id'] += [schema['$id']]
+            new_prop = None
+            break
         if p['type'].startswith(prop_type):
             # Already have the same or looser type, just record the $id
             new_prop = None
