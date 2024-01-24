@@ -150,6 +150,15 @@ properties:
     description: Disables ASPM L0s capability
     type: boolean
 
+  vpcie12v-supply:
+    description: 12v regulator phandle for the slot
+
+  vpcie3v3-supply:
+    description: 3.3v regulator phandle for the slot
+
+  vpcie3v3aux-supply:
+    description: 3.3v AUX regulator phandle for the slot
+
 patternProperties:
   "@1?[0-9a-f](,[0-7])?$":
     type: object
