@@ -90,13 +90,13 @@ def prop_value(validator, nodename, p):
     # Filter out types impossible for the size of the property
     if len(prop_types) > 1:
         if len(p) > 4:
-            prop_types -= {'int32', 'uint32'}
+            prop_types -= {'int32', 'uint32', 'phandle'}
         else:
-            prop_types -= {'int64', 'uint64', 'int64-array', 'uint64-array'}
+            prop_types -= {'int64', 'uint64', 'int64-array', 'uint64-array', 'phandle-array'}
         if len(p) > 2:
             prop_types -= {'int16', 'uint16'}
         else:
-            prop_types -= {'int32', 'uint32', 'int32-array', 'uint32-array'}
+            prop_types -= {'int32', 'uint32', 'int32-array', 'uint32-array', 'phandle', 'phandle-array'}
         if len(p) > 1:
             prop_types -= {'int8', 'uint8'}
         else:
