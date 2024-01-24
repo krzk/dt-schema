@@ -142,16 +142,18 @@ def _extract_prop_type(props, schema, propname, subschema, is_pattern):
                 p['$id'] += [schema['$id']]
             new_prop = None
             break
-        if p['type'].startswith(prop_type):
-            # Already have the same or looser type, just record the $id
+        if p['type'] == prop_type:
             new_prop = None
             if schema['$id'] not in p['$id']:
                 p['$id'] += [schema['$id']]
             break
-        elif p['type'] in prop_type:
-            # Replace scalar type with array type
-            new_prop['$id'] += p['$id']
-            dup_prop = p
+        if 'string' in prop_type and 'string' in p['type']:
+            # Extend string to string-array
+            if prop_type == 'string-array':
+                p['type'] = prop_type
+            if schema['$id'] not in p['$id']:
+                p['$id'] += [schema['$id']]
+            new_prop = None
             break
 
     if dup_prop:
