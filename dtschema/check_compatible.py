@@ -13,6 +13,8 @@ def main():
         epilog='Arguments can also be passed in a file prefixed with a "@" character.')
     ap.add_argument("compatible_str", nargs='+',
                     help="1 or more compatible strings to check for a match")
+    ap.add_argument('-q', '--quiet', action="store_true",
+                    help="Suppress printing matches")
     ap.add_argument('-v', '--invert-match', action="store_true",
                     help="invert sense of matching, printing compatible which don't match")
     ap.add_argument('-V', '--version', help="Print version number",
@@ -26,6 +28,15 @@ def main():
     undoc_compats = dtschema.DTValidator([args.schema]).get_undocumented_compatibles(args.compatible_str)
 
     if args.invert_match:
-        print(*undoc_compats, sep="\n")
+        if len(undoc_compats) > 0:
+            if not args.quiet:
+                print(*undoc_compats, sep="\n")
+            return 0
     else:
-        print(*set(args.compatible_str).difference(undoc_compats), sep="\n")
+        matches = set(args.compatible_str).difference(undoc_compats)
+        if len(matches) > 0:
+            if not args.quiet:
+                print(*matches, sep="\n")
+            return 0
+
+    return -1
