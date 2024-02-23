@@ -132,12 +132,6 @@ properties:
     description:
       states that the optional SMBus-Alert feature apply to this bus.
 
-  no-detect:
-    type: boolean
-    description:
-      States that no other devices are present on this bus other than the ones
-      listed in the devicetree.
-
 allOf:
   - not:
       required:
