@@ -137,6 +137,9 @@ def prop_value(validator, nodename, p):
             return data
 
     if fmt.startswith('string'):
+        if not data.endswith(b'\0'):
+            # Wrong data type?, skip decoding to force errors
+            return data
         return data[:-1].decode(encoding='ascii').split('\0')
 
     if {'flag'} & prop_types:
