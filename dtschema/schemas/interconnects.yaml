@@ -15,6 +15,9 @@ properties:
   interconnects:
     $ref: types.yaml#/definitions/phandle-array
 
+  interconnect-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+
 dependencies:
   interconnect-names: [interconnects]
 

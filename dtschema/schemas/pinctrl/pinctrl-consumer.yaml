@@ -16,7 +16,8 @@ select: true
 properties:
   pinctrl-0: true
 
-  pinctrl-names: true
+  pinctrl-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
 
 patternProperties:
   "^pinctrl-[0-9]+$":

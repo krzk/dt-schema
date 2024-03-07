@@ -31,6 +31,9 @@ properties:
       to the device. Note: if the IIO provider specifies '0' for
       #io-channel-cells, then only the phandle portion of the pair will appear.
 
+  io-channel-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
+
   io-backends:
     $ref: /schemas/types.yaml#/definitions/phandle-array
     description:
@@ -41,6 +44,9 @@ properties:
       connected to an FPGA IP core (through a serial data interface as LVDS)
       capable of handling the high sample rates. Examples of the provided
       services would be channel enablement/disablement.
+
+  io-backend-names:
+    $ref: /schemas/types.yaml#/definitions/string-array
 
 dependencies:
   io-channel-names: [io-channels]
