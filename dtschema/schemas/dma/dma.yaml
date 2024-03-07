@@ -17,7 +17,13 @@ properties:
   dmas:
     $ref: /schemas/types.yaml#/definitions/phandle-array
 
-  dma-names: true
+  dma-names:
+    anyOf:
+      - uniqueItems: true
+      - items:
+          # Hack around Renesas bindings which repeat entries to support
+          # multiple possible DMA providers
+          enum: [rx, tx]
 
 dependencies:
   dma-names: [ dmas ]
