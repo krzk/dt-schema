@@ -30,7 +30,7 @@ properties:
       - $ref: types.yaml#/definitions/uint32-matrix
 
   reg:
-    $ref: types.yaml#/definitions/uint32-matrix
+    $ref: types.yaml#/definitions/address
 
   reg-io-width:
     $ref: types.yaml#/definitions/uint32

@@ -33,7 +33,7 @@ def _merge_dim(dim1, dim2):
     return tuple(d)
 
 
-type_re = re.compile('(flag|u?int(8|16|32|64)(-(array|matrix))?|string(-array)?|phandle(-array)?)')
+type_re = re.compile('(address|flag|u?int(8|16|32|64)(-(array|matrix))?|string(-array)?|phandle(-array)?)')
 
 
 def _extract_prop_type(props, schema, propname, subschema, is_pattern):

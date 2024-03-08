@@ -28,7 +28,8 @@ type_format = {
     'uint32': u32,
     'int64': s64,
     'uint64': u64,
-    'phandle': u32
+    'phandle': u32,
+    'address': u32
 }
 
 
@@ -451,15 +452,15 @@ def fixup_interrupts(dt, icells):
                     i += cells
 
 
-def fixup_addresses(dt, ac, sc):
+def fixup_addresses(validator, dt, ac, sc):
     for k, v in dt.items():
         if isinstance(v, dict):
             if '#address-cells' in dt:
                 ac = _get_cells_size(dt,'#address-cells')
             if '#size-cells' in dt:
                 sc = _get_cells_size(dt, '#size-cells')
-            fixup_addresses(v, ac, sc)
-        elif k == 'reg':
+            fixup_addresses(validator, v, ac, sc)
+        elif 'address' in validator.property_get_type(k):
             i = 0
             dt[k] = []
             val = v[0]
@@ -486,7 +487,7 @@ def fdt_unflatten(validator, dtb):
     #print(phandle_loc)
     fixup_gpios(dt)
     fixup_interrupts(dt, 1)
-    fixup_addresses(dt, 2, 1)
+    fixup_addresses(validator, dt, 2, 1)
     fixup_phandles(validator, dt)
 
 #    pprint.pprint(dt, compact=True)
