@@ -114,6 +114,8 @@ def _fixup_int_array_min_max_to_matrix(subschema, path=[]):
         tmpsch['minItems'] = subschema.pop('minItems')
     if 'maxItems' in subschema:
         tmpsch['maxItems'] = subschema.pop('maxItems')
+    if 'items' in subschema:
+        tmpsch['items'] = subschema.pop('items')
 
     if tmpsch:
         subschema['items'] = tmpsch
