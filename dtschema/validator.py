@@ -359,17 +359,10 @@ class DTValidator:
             # Ensure the cache is a processed schema and not just a single schema file
             if '$id' in schema_cache:
                 schema_cache = None
+            elif schema_cache.pop('version', None) != dtschema.__version__:
+                raise Exception(f"Processed schema out of date, delete and retry: {os.path.abspath(schema_files[0])}")
 
         if schema_cache:
-            # Convert old format to new
-            if isinstance(schema_cache, list):
-                d = {}
-                for sch in schema_cache:
-                    if not isinstance(sch, dict):
-                        return None
-                    d[sch['$id']] = sch
-                schema_cache = d
-
             if 'generated-types' in schema_cache:
                 self.props = schema_cache['generated-types']['properties']
             if 'generated-pattern-types' in schema_cache:
@@ -384,6 +377,8 @@ class DTValidator:
             make_compatible_schema(self.schemas)
             for k in self.pat_props:
                 self.pat_props[k][0]['regex'] = re.compile(k)
+
+        self.schemas['version'] = dtschema.__version__
 
     def http_handler(self, uri):
         '''Custom handler for http://devicetree.org references'''
