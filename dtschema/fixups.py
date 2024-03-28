@@ -405,36 +405,13 @@ def add_select_schema(schema):
     '''Get a schema to be used in select tests.
 
     If the provided schema has a 'select' property, then use that as the select schema.
-    If it has a compatible property, then create a select schema from that.
     If it has a $nodename property, then create a select schema from that.
-    If it has none of those, then return a match-nothing schema
     '''
     if "select" in schema:
         return
 
-    if 'properties' not in schema:
-        schema['select'] = False
+    if 'properties' not in schema or 'compatible' in schema['properties']:
         return
-
-    if 'compatible' in schema['properties']:
-        compatible_list = dtschema.extract_node_compatibles(schema['properties']['compatible'])
-
-        if len(compatible_list):
-            try:
-                compatible_list.remove('syscon')
-            except:
-                pass
-            try:
-                compatible_list.remove('simple-mfd')
-            except:
-                pass
-
-            if len(compatible_list) != 0:
-                schema['select'] = {
-                    'required': ['compatible'],
-                    'properties': {'compatible': {'contains': {'enum': sorted(compatible_list)}}}}
-
-                return
 
     if '$nodename' in schema['properties'] and schema['properties']['$nodename'] is not True:
         schema['select'] = {
@@ -442,8 +419,6 @@ def add_select_schema(schema):
             'properties': {'$nodename': convert_to_dict(schema['properties']['$nodename'])}}
 
         return
-
-    schema['select'] = False
 
 
 def fixup_schema(schema):

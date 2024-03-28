@@ -239,7 +239,7 @@ def make_compatible_schema(schemas):
 
     compat_sch[0]['enum'].sort()
     schemas['generated-compatibles'] = {
-        '$id': 'http://devicetree.org/schemas/generated-compatibles',
+        '$id': 'generated-compatibles',
         '$filename': 'Generated schema of documented compatible strings',
         'select': True,
         'properties': {
@@ -269,9 +269,6 @@ def process_schema(filename):
         return
 
     schema = dtsch.fixup()
-    if 'select' not in schema:
-        print(f"{filename}: warning: no 'select' found in schema found", file=sys.stderr)
-        return
 
     schema["type"] = "object"
     schema["$filename"] = filename
@@ -378,6 +375,20 @@ class DTValidator:
             for k in self.pat_props:
                 self.pat_props[k][0]['regex'] = re.compile(k)
 
+        # Speed up iterating thru schemas in validation by saving a list of schemas
+        # to always apply and a map of compatible strings to schema.
+        self.always_schemas = []
+        self.compat_map = {}
+        for sch in self.schemas.values():
+            if 'select' in sch:
+                if sch['select'] is not False:
+                    self.always_schemas += [sch['$id']]
+            elif 'properties' in sch and 'compatible' in sch['properties']:
+                compatibles = dtschema.extract_node_compatibles(sch['properties']['compatible'])
+                compatibles = set(compatibles) - {'syscon', 'simple-mfd'}
+                for c in compatibles:
+                    self.compat_map[c] = sch['$id']
+
         self.schemas['version'] = dtschema.__version__
 
     def http_handler(self, uri):
@@ -399,16 +410,26 @@ class DTValidator:
         error.note = None
 
     def iter_errors(self, instance, filter=None):
-        for id, schema in self.schemas.items():
-            if 'select' not in schema:
+        if 'compatible' in instance:
+            inst_compat = instance['compatible'][0]
+            if inst_compat in self.compat_map:
+                schema_id = self.compat_map[inst_compat]
+                if not filter or filter in schema_id:
+                    schema = self.schemas[schema_id]
+                    for error in self.DtValidator(schema,
+                                                  resolver=self.resolver,
+                                                  ).iter_errors(instance):
+                        self.annotate_error(schema['$id'], error)
+                        yield error
+        for schema_id in self.always_schemas:
+            if filter and filter not in schema_id:
                 continue
-            if filter and filter not in id:
-                continue
-            sch = {'if': schema['select'], 'then': schema}
-            for error in self.DtValidator(sch,
+            schema = {'if': self.schemas[schema_id]['select'],
+                      'then': self.schemas[schema_id]}
+            for error in self.DtValidator(schema,
                                           resolver=self.resolver,
                                           ).iter_errors(instance):
-                self.annotate_error(id, error)
+                self.annotate_error(schema_id, error)
                 yield error
 
     def validate(self, instance, filter=None):
