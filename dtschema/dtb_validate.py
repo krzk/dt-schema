@@ -13,6 +13,7 @@ import dtschema
 verbose = False
 show_unmatched = False
 match_schema_file = None
+compatible_match = False
 
 
 class schema_group():
@@ -30,7 +31,8 @@ class schema_group():
         node['$nodename'] = [nodename]
 
         try:
-            for error in self.validator.iter_errors(node, filter=match_schema_file):
+            for error in self.validator.iter_errors(node, filter=match_schema_file,
+                                                    compatible_match=compatible_match):
 
                 # Disabled nodes might not have all the required
                 # properties filled in, such as a regulator or a
@@ -93,6 +95,7 @@ def main():
     global verbose
     global show_unmatched
     global match_schema_file
+    global compatible_match
 
     ap = argparse.ArgumentParser(fromfile_prefix_chars='@',
         epilog='Arguments can also be passed in a file prefixed with a "@" character.')
@@ -101,6 +104,8 @@ def main():
     ap.add_argument('-s', '--schema', help="preparsed schema file or path to schema files")
     ap.add_argument('-p', '--preparse', help="preparsed schema file (deprecated, use '-s')")
     ap.add_argument('-l', '--limit', help="limit validation to schemas with $id matching LIMIT substring")
+    ap.add_argument('-c', '--compatible-match', action="store_true",
+                    help="limit validation to schema matching nodes' most specific compatible string")
     ap.add_argument('-m', '--show-unmatched',
         help="Print out node 'compatible' strings which don't match any schema.",
         action="store_true")
@@ -114,6 +119,7 @@ def main():
     verbose = args.verbose
     show_unmatched = args.show_unmatched
     match_schema_file = args.limit
+    compatible_match = args.compatible_match
 
     # Maintain prior behaviour which accepted file paths by stripping the file path
     if args.url_path and args.limit:

@@ -409,7 +409,7 @@ class DTValidator:
         error.linecol = -1, -1
         error.note = None
 
-    def iter_errors(self, instance, filter=None):
+    def iter_errors(self, instance, filter=None, compatible_match=False):
         if 'compatible' in instance:
             inst_compat = instance['compatible'][0]
             if inst_compat in self.compat_map:
@@ -421,6 +421,10 @@ class DTValidator:
                                                   ).iter_errors(instance):
                         self.annotate_error(schema['$id'], error)
                         yield error
+
+        if compatible_match:
+            return
+
         for schema_id in self.always_schemas:
             if filter and filter not in schema_id:
                 continue
