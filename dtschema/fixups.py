@@ -253,9 +253,41 @@ def fixup_vals(schema, path=[]):
     fixup_schema_to_201909(schema)
 
 
+def _fixup_oneOf_to_enum(schema, path=[]):
+    # Convert oneOf/anyOf lists with just 'const' entries into an enum.
+    # This pattern is used to add descriptions on each entry which is not
+    # possible with 'enum', but the error reporting is much worse with
+    # oneOf/anyOf schemas.
+
+    if 'anyOf' in schema:
+        sch_list = schema['anyOf']
+    elif 'oneOf' in schema:
+        sch_list = schema['oneOf']
+    elif 'items' in schema and isinstance(schema['items'], dict):
+        # Sometimes 'items' appears first which isn't really handled by the
+        # fixups, but we can handle it here.
+        _fixup_oneOf_to_enum(schema['items'], path=path + ['items'])
+        return
+    else:
+        return
+
+    const_list = []
+    for l in sch_list:
+        if 'const' not in l or set(l) > {'const', 'description'}:
+            return
+        const_list += [l['const']]
+
+    schema.pop('anyOf', None)
+    schema.pop('oneOf', None)
+    schema['enum'] = const_list
+
+
 def walk_properties(schema, path=[]):
     if not isinstance(schema, dict):
         return
+
+    _fixup_oneOf_to_enum(schema, path=path)
+
     # Recurse until we don't hit a conditional
     # Note we expect to encounter conditionals first.
     # For example, a conditional below 'items' is not supported
