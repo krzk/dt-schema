@@ -4,7 +4,8 @@
 # Python library for Devicetree schema validation
 import os
 import re
-import pprint
+
+from jsonschema.exceptions import best_match
 
 # We use a lot of regex's in schema and exceeding the cache size has noticeable
 # peformance impact.
@@ -128,21 +129,19 @@ def format_error(filename, error, prefix="", nodename=None, verbose=False):
     elif not error.schema_path:
         msg = error.message
     elif error.context:
-        # An error on a conditional will have context with sub-errors
-        msg = "'" + error.schema_path[-1] + "' conditional failed, one must be fixed:"
+        if len(error.context) == 1:
+            msg = best_match(error.context).message
+        else:
+            # An error on a conditional will have context with sub-errors
+            msg = "\n'" + error.schema_path[-1] + "' conditional failed, one must be fixed:"
 
-        for suberror in sorted(error.context, key=lambda e: e.path):
-            if suberror.context:
-                msg += '\n' + format_error(filename, suberror, prefix=prefix+"\t", nodename=nodename, verbose=verbose)
-            elif suberror.message not in msg:
-                msg += '\n' + prefix + '\t' + suberror.message
-                if hasattr(suberror, 'note') and suberror.note and suberror.note != error.note:
-                    msg += '\n\t\t' + prefix + 'hint: ' + suberror.note
-
-    elif error.schema_path[-1] == 'oneOf':
-        msg = 'More than one condition true in oneOf schema:\n\t' + \
-            '\t'.join(pprint.pformat(error.schema, width=72).splitlines(True))
-
+            for suberror in sorted(error.context, key=lambda e: e.path):
+                if suberror.context:
+                    msg += '\n' + format_error(filename, suberror, prefix=prefix+"\t", nodename=nodename, verbose=verbose)
+                elif suberror.message not in msg:
+                    msg += '\n' + prefix + '\t' + suberror.message
+                    if hasattr(suberror, 'note') and suberror.note and suberror.note != error.note:
+                        msg += '\n\t\t' + prefix + 'hint: ' + suberror.note
     else:
         msg = error.message
 
