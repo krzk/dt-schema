@@ -57,12 +57,19 @@ patternProperties:
       - required:
           - ranges
 
-  "^[^@]+$":
-    # Only additional properties should be properties, not nodes.
-    not:
-      type: object
+additionalProperties:
+  description:
+    Anything else must be a property or have empty 'ranges'. An empty 'ranges'
+    is only appropriate if the child node is another 'simple-bus' or similar.
+  if:
+    type: object
+  then:
+    properties:
+      ranges:
+        type: boolean
 
-additionalProperties: false
+    required:
+      - ranges
 
 required:
   - compatible
