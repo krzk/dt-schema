@@ -133,7 +133,7 @@ def format_error(filename, error, prefix="", nodename=None, verbose=False):
             msg = best_match(error.context).message
         else:
             # An error on a conditional will have context with sub-errors
-            msg = "\n'" + error.schema_path[-1] + "' conditional failed, one must be fixed:"
+            msg = "'" + error.schema_path[-1] + "' conditional failed, one must be fixed:"
 
             for suberror in sorted(error.context, key=lambda e: e.path):
                 if suberror.context:
