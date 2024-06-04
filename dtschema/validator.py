@@ -225,6 +225,9 @@ def make_compatible_schema(schemas):
     # Allow 'foo' values for examples
     compat_sch += [{'pattern': '^foo'}]
 
+    # Allow 'test,' vendor prefix for test cases
+    compat_sch += [{'pattern': '^test,'}]
+
     prog = re.compile(r'.*[\^\[{\(\$].*')
     for c in compatible_list:
         if prog.match(c):
