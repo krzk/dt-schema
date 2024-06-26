@@ -414,16 +414,17 @@ class DTValidator:
 
     def iter_errors(self, instance, filter=None, compatible_match=False):
         if 'compatible' in instance:
-            inst_compat = instance['compatible'][0]
-            if inst_compat in self.compat_map:
-                schema_id = self.compat_map[inst_compat]
-                if not filter or filter in schema_id:
-                    schema = self.schemas[schema_id]
-                    for error in self.DtValidator(schema,
-                                                  resolver=self.resolver,
-                                                  ).iter_errors(instance):
-                        self.annotate_error(schema['$id'], error)
-                        yield error
+            for inst_compat in instance['compatible']:
+                if inst_compat in self.compat_map:
+                    schema_id = self.compat_map[inst_compat]
+                    if not filter or filter in schema_id:
+                        schema = self.schemas[schema_id]
+                        for error in self.DtValidator(schema,
+                                                    resolver=self.resolver,
+                                                    ).iter_errors(instance):
+                            self.annotate_error(schema['$id'], error)
+                            yield error
+                    break
 
         if compatible_match:
             return
