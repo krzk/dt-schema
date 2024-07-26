@@ -170,7 +170,16 @@ class DTSchema(dict):
 
             if not is_common and _is_node_schema(schema) and \
                (schema.keys() & {'properties', 'patternProperties', '$ref'}):
+
                 ref_has_constraint = False
+                if 'properties' in schema:
+                    # All false properties are not complete schemas
+                    for prop,val in schema['properties'].items():
+                        if val is not False:
+                            break
+                    else:
+                        ref_has_constraint = True
+
                 if '$ref' in schema:
                     url, ref_sch = self.resolver.resolve(schema['$ref'])
 
