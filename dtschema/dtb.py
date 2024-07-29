@@ -127,7 +127,15 @@ def prop_value(validator, nodename, p):
                 return data
         else:
             #print(p.name + ': multiple types found', file=sys.stderr)
-            fmt = None
+            # HACK around a type collision. Since 4 bytes could be either type,
+            # let's hope a value of 1-4 is not a phandle
+            if p.name == "dma-masters":
+                if len(p) == 4 and (0 < type_format['uint32'].unpack(data)[0] <= 4):
+                    fmt = 'uint32'
+                else:
+                    fmt = 'phandle-array'
+            else:
+                fmt = None
     elif len(prop_types) == 1:
         fmt = prop_types.pop()
 
