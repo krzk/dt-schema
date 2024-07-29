@@ -100,7 +100,7 @@ def prop_value(validator, nodename, p):
         if len(p) > 4:
             prop_types -= {'int32', 'uint32', 'phandle'}
         else:
-            prop_types -= {'int64', 'uint64', 'int64-array', 'uint64-array', 'phandle-array'}
+            prop_types -= {'int64', 'uint64', 'int64-array', 'uint64-array'}
         if len(p) > 2:
             prop_types -= {'int16', 'uint16'}
         else:
@@ -111,6 +111,9 @@ def prop_value(validator, nodename, p):
             prop_types -= {'int16', 'uint16', 'int16-array', 'uint16-array'}
         if len(p) > 0:
             prop_types -= {'flag'}
+
+        if prop_types >= {'phandle', 'phandle-array'}:
+            prop_types -= {'phandle'}
 
     if len(prop_types) > 1:
         if {'string', 'string-array'} & prop_types:
