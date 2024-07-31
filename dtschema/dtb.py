@@ -115,6 +115,16 @@ def prop_value(validator, nodename, p):
         if prop_types >= {'phandle', 'phandle-array'}:
             prop_types -= {'phandle'}
 
+        # Drop the unsigned type if both signed and unsigned type exists
+        if prop_types >= {'int64', 'uint64'}:
+            prop_types -= {'uint64'}
+        if prop_types >= {'int32', 'uint32'}:
+            prop_types -= {'uint32'}
+        if prop_types >= {'int16', 'uint16'}:
+            prop_types -= {'uint16'}
+        if prop_types >= {'int8', 'uint8'}:
+            prop_types -= {'uint8'}
+
     if len(prop_types) > 1:
         if {'string', 'string-array'} & prop_types:
             str = bytes_to_string(data)
