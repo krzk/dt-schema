@@ -459,11 +459,11 @@ def fixup_interrupts(dt, icells):
                 # Assume uniform sizes (same interrupt provider)
                 try:
                     cells = val.index(0xffffffff, ac + icells + 1) - (ac + icells)
-                    while i < len(val):
-                        dt[k] += [val[i:i + cells]]
-                        i += cells
-                except:
-                    pass    # Only 1 entry, nothing to do
+                except ValueError:
+                    cells = len(val)
+                while i < len(val):
+                    dt[k] += [val[i:i + cells]]
+                    i += cells
             else:
                 while i < len(val):
                     p_icells = _get_cells_size(phandles[phandle], '#interrupt-cells')
