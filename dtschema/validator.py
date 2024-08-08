@@ -172,6 +172,10 @@ def _extract_subschema_types(props, schema, subschema):
     if 'additionalProperties' in subschema:
         _extract_subschema_types(props, schema, subschema['additionalProperties'])
 
+    for k in subschema.keys() & {'allOf', 'oneOf', 'anyOf'}:
+        for v in subschema[k]:
+            _extract_subschema_types(props, schema, v)
+
     for k in subschema.keys() & {'properties', 'patternProperties'}:
         if isinstance(subschema[k], dict):
             for p, v in subschema[k].items():
