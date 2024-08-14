@@ -15,6 +15,14 @@ allOf:
       - required: [ additionalProperties ]
 
 definitions:
+  unit-suffix-properties:
+    $ref: cell.yaml#/array
+    propertyNames:
+      description: Standard unit suffix properties don't need a type $ref
+      not:
+        const: $ref
+
+
   all-properties:
     allOf:
       - $ref: "#/definitions/core-properties"
@@ -58,13 +66,16 @@ definitions:
         propertyNames:
           enum: [ description, deprecated ]
 
-      '-(bits|bps|kBps|percent|bp|mhz|hz|sec|ms|us|ns|ps|mm|nanoamp|microamp(-hours)?|(micro-)?ohms|microwatt-hours|microvolt|(femto|pico)farads|(milli)?celsius|kelvin|k?pascal)$':
-        allOf:
-          - $ref: cell.yaml#/array
-          - description: Standard unit suffix properties don't need a type $ref
-            propertyNames:
-              not:
-                const: $ref
+      '-(bits|bps|kBps|percent|bp|mhz|hz|sec|ms|us|ns|ps|mm|nanoamp|microamp(-hours)?|micro-ohms|microwatt-hours|microvolt|(femto|pico)farads|(milli)?celsius|kelvin|k?pascal)$':
+        $ref: '#/definitions/unit-suffix-properties'
+
+      # Some special cases which don't match the normal size.
+      '(?<!ti,[xy]-plate)-ohms$':
+        $ref: '#/definitions/unit-suffix-properties'
+
+      # Really is "marvell,wakeup-gap-ms", but look-behind requires a fixed width pattern
+      '(?<!(rvell,wakeup-gap|refresh-interval))-ms$':
+        $ref: '#/definitions/unit-suffix-properties'
 
       '^.*$':
         properties:
