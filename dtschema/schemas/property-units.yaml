@@ -59,7 +59,8 @@ patternProperties:
   "-sec$":
     $ref: types.yaml#/definitions/uint32-array
     description: second
-  "-ms$":
+  # Really is "marvell,wakeup-gap-ms", but look-behind requires a fixed width pattern
+  "(?<!(rvell,wakeup-gap|refresh-interval))-ms$":
     $ref: types.yaml#/definitions/uint32-array
     description: millisecond
   "-us$":
@@ -87,7 +88,7 @@ patternProperties:
   "-microamp-hours$":
     $ref: types.yaml#/definitions/uint32-array
     description: microampere hour
-  "-ohms$":
+  "(?<!ti,[xy]-plate)-ohms$":
     $ref: types.yaml#/definitions/uint32-array
     description: ohm
   "-micro-ohms$":
