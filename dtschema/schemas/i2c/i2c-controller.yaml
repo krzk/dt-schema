@@ -90,6 +90,21 @@ properties:
       low-pass analog filter). Typical value should be above the normal i2c bus
       clock frequency (clock-frequency). Specified in Hz.
 
+  interrupts:
+    description:
+      If not using interrupt-names, the first interrupt will be treated as the
+      primary interrupt for the controller.
+
+  interrupt-names:
+    anyOf:
+      - {} # Any name is allowed.
+      - contains:
+          enum:
+            - smbus_alert
+        description:
+          Generic name is "smbus_alert" for the SMBusAlert signal. Other names
+          are left to individual bindings.
+
   mctp-controller:
     type: boolean
     description:
