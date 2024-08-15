@@ -416,12 +416,20 @@ class DTValidator:
         error.linecol = -1, -1
         error.note = None
 
+    def _filter_match(self, schema_id, filter):
+        if not filter:
+            return True
+        for f in filter:
+            if f in schema_id:
+                return True
+        return False
+
     def iter_errors(self, instance, filter=None, compatible_match=False):
         if 'compatible' in instance:
             for inst_compat in instance['compatible']:
                 if inst_compat in self.compat_map:
                     schema_id = self.compat_map[inst_compat]
-                    if not filter or filter in schema_id:
+                    if self._filter_match(schema_id, filter):
                         schema = self.schemas[schema_id]
                         for error in self.DtValidator(schema,
                                                     resolver=self.resolver,
@@ -434,7 +442,7 @@ class DTValidator:
             return
 
         for schema_id in self.always_schemas:
-            if filter and filter not in schema_id:
+            if not self._filter_match(schema_id, filter):
                 continue
             schema = {'if': self.schemas[schema_id]['select'],
                       'then': self.schemas[schema_id]}

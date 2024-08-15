@@ -103,7 +103,8 @@ def main():
                     help="Filename or directory of devicetree DTB input file(s)")
     ap.add_argument('-s', '--schema', help="preparsed schema file or path to schema files")
     ap.add_argument('-p', '--preparse', help="preparsed schema file (deprecated, use '-s')")
-    ap.add_argument('-l', '--limit', help="limit validation to schemas with $id matching LIMIT substring")
+    ap.add_argument('-l', '--limit', help="limit validation to schemas with $id matching LIMIT substring. " \
+                    "Multiple substrings separated by ':' can be listed (e.g. foo:bar:baz).")
     ap.add_argument('-c', '--compatible-match', action="store_true",
                     help="limit validation to schema matching nodes' most specific compatible string")
     ap.add_argument('-m', '--show-unmatched',
@@ -118,14 +119,17 @@ def main():
 
     verbose = args.verbose
     show_unmatched = args.show_unmatched
-    match_schema_file = args.limit
+    if args.limit:
+        match_schema_file = args.limit.split(':')
     compatible_match = args.compatible_match
 
     # Maintain prior behaviour which accepted file paths by stripping the file path
     if args.url_path and args.limit:
-        for d in args.url_path.split(os.path.sep):
-            if d and match_schema_file.startswith(d):
-                match_schema_file = match_schema_file[(len(d) + 1):]
+        for i,match in enumerate(match_schema_file):
+            for d in args.url_path.split(os.path.sep):
+                if d and match.startswith(d):
+                    match = match[(len(d) + 1):]
+            match_schema_file[i] = match
 
     if args.preparse:
         sg = schema_group(args.preparse)
