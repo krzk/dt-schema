@@ -135,6 +135,11 @@ properties:
       use this information to detect a stalled bus more reliably, for example.
       Can not be combined with 'multi-master'.
 
+  smbalert-gpios:
+    maxItems: 1
+    description:
+      Specifies the GPIO used for the SMBALERT# line. Optional.
+
   smbus:
     type: boolean
     description:
