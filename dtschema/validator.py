@@ -392,8 +392,12 @@ class DTValidator:
                     self.always_schemas += [sch['$id']]
             elif 'properties' in sch and 'compatible' in sch['properties']:
                 compatibles = dtschema.extract_node_compatibles(sch['properties']['compatible'])
-                compatibles = set(compatibles) - {'syscon', 'simple-mfd'}
+                if len(compatibles) > 1:
+                    compatibles = set(compatibles) - {'syscon', 'simple-mfd', 'simple-bus'}
                 for c in compatibles:
+                    if not schema_cache and c in self.compat_map:
+                        print(f'Warning: Duplicate compatible "{c}" found in schemas matching "$id":\n'
+                              f'\t{self.compat_map[c]}\n\t{sch["$id"]}', file=sys.stderr)
                     self.compat_map[c] = sch['$id']
 
         self.schemas['version'] = dtschema.__version__
