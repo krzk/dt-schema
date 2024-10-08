@@ -1,0 +1,72 @@
+# SPDX-License-Identifier: BSD-2-Clause
+# Copyright 2015,2024 Arm Ltd.
+%YAML 1.2
+---
+$id: http://devicetree.org/schemas/wakeup-source.yaml#
+$schema: http://devicetree.org/meta-schemas/core.yaml#
+
+title: Wakeup sources
+
+description: >
+  Nodes that describe devices which have wakeup capability may contain a
+  "wakeup-source" boolean property.
+
+  If the device is marked as a wakeup-source, interrupt wake capability depends
+  on the device specific "interrupt-names" property. If no interrupts are labeled
+  as wake capable, then it is up to the device to determine which interrupts can
+  wake the system.
+
+  However if a device has a dedicated interrupt as the wakeup source, then it
+  needs to specify/identify it using a device specific interrupt name. In such
+  cases only that interrupt can be used as a wakeup interrupt.
+
+  While various legacy interrupt names exist, new devices should use "wakeup" as
+  the canonical interrupt name.
+
+maintainers:
+  - Rob Herring <robh@kernel.org>
+
+select: true
+
+properties:
+  wakeup-source:
+    type: boolean
+
+additionalProperties: true
+
+examples:
+  - |
+    # With "wakeup" interrupt name
+    device@10000 {
+        compatible = "vendor,device-id";
+        reg = <0x10000 0x1000>;
+        interrupts = <0 19 4>, <0 21 4>, <0 22 4>;
+        interrupt-names = "ack", "err", "wakeup";
+        wakeup-source;
+    };
+
+  - |
+    # Without "wakeup" interrupt name
+    embedded-controller@1e {
+        compatible = "google,cros-ec-i2c";
+        reg = <0x1e>;
+        interrupts = <6 0>;
+        wakeup-source;
+    };
+
+  - |
+    # Without interrupts
+    keys {
+        compatible = "gpio-keys";
+        #address-cells = <1>;
+        #size-cells = <0>;
+
+        button {
+            debounce-interval = <50>;
+            wakeup-source;
+            linux,code = <116>;
+            label = "POWER";
+            gpios = <&iofpga_gpio0 0 0x4>;
+        };
+    };
+...
