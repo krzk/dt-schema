@@ -26,6 +26,10 @@ properties:
       - items:
           - enum:
               - vendor,soc1-ip
+      - items:
+          - not: {}
+            description: Needs a specific compatible
+          - const: vendor,soc1-ip
 
   reg:
     maxItems: 2
