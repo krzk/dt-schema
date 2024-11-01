@@ -33,6 +33,8 @@ def _value_is_type(subschema, key, type):
 
 
 def _is_int_schema(subschema):
+    if not isinstance(subschema, dict):
+        return False
     for match in ['const', 'enum', 'minimum', 'maximum']:
         if _value_is_type(subschema, match, int):
             return True
@@ -41,6 +43,8 @@ def _is_int_schema(subschema):
 
 
 def _is_string_schema(subschema):
+    if not isinstance(subschema, dict):
+        return False
     for match in ['const', 'enum', 'pattern']:
         if _value_is_type(subschema, match, str):
             return True

@@ -66,6 +66,8 @@ def _fixup_remove_empty_items(subschema):
         return
 
     for item in subschema['items']:
+        if not isinstance(item, dict):
+            continue
         item.pop('description', None)
         _fixup_remove_empty_items(item)
         if item != {}:

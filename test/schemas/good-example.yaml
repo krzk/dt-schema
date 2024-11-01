@@ -27,6 +27,7 @@ properties:
           - enum:
               - vendor,soc1-ip
       - items:
+          - false
           - not: {}
             description: Needs a specific compatible
           - const: vendor,soc1-ip
