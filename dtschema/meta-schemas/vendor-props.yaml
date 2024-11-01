@@ -8,6 +8,10 @@ $schema: https://json-schema.org/draft/2019-09/schema
 
 description: Metaschema for vendor specific properties
 
+properties:
+  adi,channels:
+    type: object
+
 patternProperties:
   '[\[\]*{}$\^\\]+': true # exclude regex's
   '^[^,]*$': true
