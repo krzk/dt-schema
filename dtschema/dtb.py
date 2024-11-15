@@ -144,6 +144,9 @@ def prop_value(validator, nodename, p):
                     fmt = 'uint32'
                 else:
                     fmt = 'phandle-array'
+            elif p.name == "mode-gpios":
+                # "mode-gpios" also matches "^mode-" pattern, but it is always a GPIO
+                fmt = 'phandle-array'
             else:
                 fmt = None
     elif len(prop_types) == 1:
