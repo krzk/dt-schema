@@ -126,7 +126,11 @@ properties:
     not:
       pattern: '^https?://'
   additionalItems:
-    type: boolean
+    oneOf:
+      - type: object
+        allOf:
+          - $ref: "#/definitions/sub-schemas"
+      - type: boolean
   additionalProperties:
     oneOf:
       - type: object
