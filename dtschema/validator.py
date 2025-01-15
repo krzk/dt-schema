@@ -479,10 +479,46 @@ class DTValidator:
                 for id in val[0]['$id']:
                     print(f"{self.schemas[id]['$filename']}: {p}: missing type definition", file=sys.stderr)
 
+    def check_duplicate_property_types(self):
+        """
+        Check for properties with multiple types consisting of a mixture of
+        integer scalar, array or matrix. These cannot be decoded reliably.
+        """
+        for p, val in self.props.items():
+            # Exclude some known problematic properties
+            if p in ['dma-masters']:
+                continue
+
+            has_int = 0
+            has_array = 0
+            has_matrix = 0
+            for v in val:
+                if v['type'] is None:
+                    break
+                if re.match(r'u?int(8|16|32|64)$', v['type']):
+                    has_int += 1
+                elif re.match(r'u?int.+-array', v['type']):
+                    has_array += 1
+                elif re.match(r'u?int.+-matrix', v['type']):
+                    has_matrix += 1
+                    min_size = v['dim'][0][0] * v['dim'][1][0]
+                elif v['type'] == 'phandle-array':
+                    has_matrix += 1
+                    min_size = v['dim'][0][0] * v['dim'][1][0]
+
+            if not ((has_int and (has_array or (has_matrix and min_size == 1))) or
+                    (has_array and has_matrix)):
+                continue
+
+            for v in val:
+                for sch_id in v['$id']:
+                    print(f"{self.schemas[sch_id]['$filename']}: {p}: multiple incompatible types: {v['type']}", file=sys.stderr)
+
     def make_property_type_cache(self):
         self.props, self.pat_props = get_prop_types(self.schemas)
 
         self.check_missing_property_types()
+        self.check_duplicate_property_types()
 
         for val in self.props.values():
             for t in val:
