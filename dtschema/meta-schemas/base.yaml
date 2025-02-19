@@ -39,6 +39,7 @@ properties:
   maintainers:
     type: array
     items:
+      pattern: '@'
       type: string
       format: email
 
