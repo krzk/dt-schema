@@ -11,7 +11,7 @@ description: |
   Common properties always required in the root node of the tree
 
 maintainers:
-  - Device Tree <dt@kernel.org>
+  - devicetree-spec@vger.kernel.org
 
 properties:
   $nodename:
@@ -33,6 +33,10 @@ properties:
     enum: [1, 2]
   "#size-cells":
     enum: [1, 2]
+
+  dma-coherent: true
+  interrupt-parent: true
+
   memory: false
 
 patternProperties:
@@ -61,16 +65,13 @@ patternProperties:
       - required:
           - ranges
 
-  # Anything else should not have a unit-address
-  "^[^@]+$": true
-
 required:
   - compatible
   - model
   - "#address-cells"
   - "#size-cells"
 
-additionalProperties: false
+additionalProperties: true
 
 examples:
   - |
