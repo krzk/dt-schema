@@ -6,7 +6,7 @@
 $id: http://devicetree.org/schemas/reset/reset.yaml#
 $schema: http://devicetree.org/meta-schemas/base.yaml#
 
-title: Reset Consumer Common Properties
+title: Reset Common Properties
 
 description: >
   This binding is intended to represent the hardware reset signals present
@@ -45,6 +45,12 @@ maintainers:
 select: true
 
 properties:
+  '#reset-cells':
+    maximum: 2
+    description:
+      Number of cells in a reset specifier; Typically 0 for nodes with a single
+      reset output and 1 for nodes with multiple reset outputs.
+
   resets:
     $ref: /schemas/types.yaml#/definitions/phandle-array
 
