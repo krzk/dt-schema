@@ -125,6 +125,9 @@ def prop_value(validator, nodename, p):
         if prop_types >= {'int8', 'uint8'}:
             prop_types -= {'uint8'}
 
+    dim = validator.property_get_type_dim(p.name)
+    matrix_prop_types = { t for t in prop_types if 'matrix' in t }
+
     if len(prop_types) > 1:
         if {'string', 'string-array'} & prop_types:
             str = bytes_to_string(data)
@@ -135,6 +138,13 @@ def prop_value(validator, nodename, p):
                 fmt = prop_types.difference({'string', 'string-array'}).pop()
             except:
                 return data
+        elif matrix_prop_types:
+            scalar_prop_types = prop_types - matrix_prop_types
+            if len(scalar_prop_types) == 1:
+                fmt = scalar_prop_types.pop()
+                min_dim = dim[0][0] * dim[1][0]
+                if len(p) / type_format[fmt].size >= min_dim:
+                    fmt = matrix_prop_types.pop()
         else:
             #print(p.name + ': multiple types found', file=sys.stderr)
             # HACK around a type collision. Since 4 bytes could be either type,
@@ -203,7 +213,6 @@ def prop_value(validator, nodename, p):
             val_int += [dtschema.sized_int(i[0], size=(type_struct.size * 8))]
 
     if 'matrix' in fmt or fmt in {'phandle', 'phandle-array', 'address'}:
-        dim = validator.property_get_type_dim(p.name)
         if dim:
             stride = get_stride(len(val_int), dim)
 
