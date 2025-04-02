@@ -14,7 +14,7 @@ maintainers:
 
 properties:
   $nodename:
-    pattern: "^i2c(@.*)?$"
+    pattern: "^i2c(@.+|-[a-z0-9]+)?$"
 
   i2c-bus:
     type: object
