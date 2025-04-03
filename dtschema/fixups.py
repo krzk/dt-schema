@@ -313,9 +313,27 @@ def fixup_sub_schema(schema, path=[]):
 
 
 def fixup_node_props(schema):
+    if not {'unevaluatedProperties', 'additionalProperties'} & schema.keys():
+        return
+
+    keys = []
+    if 'properties' in schema:
+        keys.extend(schema['properties'].keys())
+    if 'patternProperties' in schema:
+        keys.extend(schema['patternProperties'])
+
+    if "clocks" in keys and "assigned-clocks" not in keys:
+        schema['properties']['assigned-clocks'] = True
+        schema['properties']['assigned-clock-rates-u64'] = True
+        schema['properties']['assigned-clock-rates'] = True
+        schema['properties']['assigned-clock-parents'] = True
+
+    # 'dma-ranges' allowed when 'ranges' is present
+    if 'ranges' in keys:
+        schema['properties'].setdefault('dma-ranges', True)
+
     # If no restrictions on undefined properties, then no need to add any implicit properties
-    if (not {'unevaluatedProperties', 'additionalProperties'} & schema.keys()) or \
-       ('additionalProperties' in schema and schema['additionalProperties'] is True) or \
+    if ('additionalProperties' in schema and schema['additionalProperties'] is True) or \
        ('unevaluatedProperties' in schema and schema['unevaluatedProperties'] is True):
         return
 
@@ -330,14 +348,6 @@ def fixup_node_props(schema):
     schema['properties'].setdefault('bootph-some-ram', True)
     schema['properties'].setdefault('bootph-all', True)
 
-    # 'dma-ranges' allowed when 'ranges' is present
-    if 'ranges' in schema['properties']:
-        schema['properties'].setdefault('dma-ranges', True)
-
-    keys = list(schema['properties'].keys())
-    if 'patternProperties' in schema:
-        keys.extend(schema['patternProperties'])
-
     for key in keys:
         if re.match(r'^pinctrl-[0-9]', key):
             break
@@ -345,12 +355,6 @@ def fixup_node_props(schema):
         schema['properties'].setdefault('pinctrl-names', True)
         schema.setdefault('patternProperties', dict())
         schema['patternProperties']['pinctrl-[0-9]+'] = True
-
-    if "clocks" in keys and "assigned-clocks" not in keys:
-        schema['properties']['assigned-clocks'] = True
-        schema['properties']['assigned-clock-rates-u64'] = True
-        schema['properties']['assigned-clock-rates'] = True
-        schema['properties']['assigned-clock-parents'] = True
 
 
 # Convert to standard types from ruamel's CommentedMap/Seq
