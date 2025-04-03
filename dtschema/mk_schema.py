@@ -35,7 +35,7 @@ def main():
         f = sys.stdout
 
     if (args.json):
-        json.dump(schemas, f, indent=4)
+        json.dump(schemas, f, indent=4, sort_keys=True)
     else:
         yaml = ruamel.yaml.YAML(typ='safe')
         yaml.dump(schemas, f)
