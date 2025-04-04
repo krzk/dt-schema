@@ -32,6 +32,32 @@ properties:
     $ref: /schemas/types.yaml#/definitions/uint32
 
   msi-map:
+    description: >
+      Maps a Requester ID (AKA RID) to an MSI controller and associated
+      msi-specifier data.
+
+      Each PCI device under a root complex is uniquely identified by its
+      Requester ID. A Requester ID is a triplet of a Bus number,
+      Device number, and Function number.
+
+      For the purpose of this document, when treated as a numeric value, a RID
+      is formatted such that:
+
+        * Bits [15:8] are the Bus number.
+        * Bits [7:3] are the Device number.
+        * Bits [2:0] are the Function number.
+        * Any other bits required for padding must be zero.
+
+      MSIs may be distinguished in part through the use of sideband data
+      accompanying writes. In the case of PCI devices, this sideband data may be
+      derived from the Requester ID. A mechanism is required to associate a
+      device with both the MSI controllers it can address, and the sideband data
+      that will be associated with its writes to those controllers.
+
+      Any RID r in the interval [rid-base, rid-base + length) is associated with
+      the listed msi-controller, with the msi-specifier (r - rid-base +
+      msi-base).
+
     $ref: /schemas/types.yaml#/definitions/uint32-matrix
     items:
       items:
