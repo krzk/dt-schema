@@ -111,7 +111,7 @@ def _get_array_range(subschema):
     return (min, max)
 
 
-def format_error(filename, error, prefix="", nodename=None, verbose=False):
+def format_error(filename, error, prefix="", nodename=None, compatible=None, verbose=False):
     src = prefix + os.path.abspath(filename) + ':'
 
     if hasattr(error, 'linecol') and error.linecol[0] >= 0:
@@ -120,7 +120,10 @@ def format_error(filename, error, prefix="", nodename=None, verbose=False):
         src += ' '
 
     if nodename is not None:
-        src += nodename + ': '
+        src += nodename
+        if compatible is not None:
+            src += f" ({compatible})"
+        src += ': '
 
     if error.absolute_path:
         for path in error.absolute_path:
@@ -141,7 +144,7 @@ def format_error(filename, error, prefix="", nodename=None, verbose=False):
 
             for suberror in sorted(error.context, key=lambda e: e.path):
                 if suberror.context:
-                    msg += '\n' + format_error(filename, suberror, prefix=prefix+"\t", nodename=nodename, verbose=verbose)
+                    msg += '\n' + format_error(filename, suberror, prefix=prefix+"\t", nodename=nodename, compatible=compatible, verbose=verbose)
                 elif suberror.message not in msg:
                     msg += '\n' + prefix + '\t' + suberror.message
                     if hasattr(suberror, 'note') and suberror.note and suberror.note != error.note:
