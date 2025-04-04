@@ -84,7 +84,10 @@ properties:
       recognizes any of the methods, it may use it.
 
   cpu-release-addr:
-    $ref: /schemas/types.yaml#/definitions/uint64
+    oneOf:
+      - $ref: /schemas/types.yaml#/definitions/uint64
+      - $ref: /schemas/types.yaml#/definitions/uint32
+        deprecated: true    # Needed for some 32-bit Arm systems
     description:
       This value specifies the physical address of a spin table entry that
       releases a secondary CPU from its spin loop.
@@ -138,10 +141,7 @@ anyOf:
       - compatible
 
 dependencies:
-  cpu-release-addr:
-    properties:
-      enable-method:
-        const: spin-table
+  cpu-release-addr: [ enable-method ]
   d-tlb-size: [ tlb-split ]
   d-tlb-sets: [ tlb-split ]
   i-tlb-size: [ tlb-split ]
