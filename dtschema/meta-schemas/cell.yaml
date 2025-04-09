@@ -37,20 +37,22 @@ array:
           description: '"items" can be a list defining each entry or a schema
             applying to all items. A list has an implicit size. A schema
             requires minItems/maxItems to define the size.'
-          oneOf:
-            - type: object
-              allOf:
-                - $ref: '#/array'
-            - type: array
+          if:
+            type: object
+          then:
+            $ref: '#/array'
+          else:
+            type: array
+            if:
               items:
-                $ref: '#/single'
-            - type: array
+                required: [ items ]
+            then:
               maxItems: 1 # for more than 1, outer 'items' should be a schema
               items:
-                allOf:
-                  - $ref: '#/array'
-                required:
-                  - items
+                $ref: '#/array'
+            else:
+              items:
+                $ref: '#/single'
         additionalItems:
           type: boolean
           const: true

@@ -8,9 +8,13 @@ $schema: https://json-schema.org/draft/2019-09/schema
 
 properties:
   clocks:
-    oneOf:
-      - $ref: cell.yaml#/array
-      - $ref: nodes.yaml
+    if:
+      type: object
+      required: [type]
+    then:
+      $ref: nodes.yaml
+    else:
+      $ref: cell.yaml#/array
   clock-ranges:
     $ref: boolean.yaml
   clock-indices:

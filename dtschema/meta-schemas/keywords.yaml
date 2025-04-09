@@ -171,13 +171,14 @@ properties:
   if:
     $ref: "#/definitions/sub-schemas"
   items:
-    oneOf:
-      - type: object
-        allOf:
-          - $ref: "#/definitions/sub-schemas"
-      - type: array
-        items:
-          $ref: "#/definitions/sub-schemas"
+    if:
+      type: object
+    then:
+      $ref: "#/definitions/sub-schemas"
+    else:
+      type: array
+      items:
+        $ref: "#/definitions/sub-schemas"
   maxItems:
     minimum: 1
   minItems:
@@ -230,11 +231,12 @@ properties:
   then:
     $ref: "#/definitions/sub-schemas"
   unevaluatedProperties:
-    oneOf:
-      - type: object
-        allOf:
-          - $ref: "#/definitions/sub-schemas"
-      - type: boolean
+    if:
+      type: object
+    then:
+      $ref: "#/definitions/sub-schemas"
+    else:
+      type: boolean
   uniqueItems:
     type: boolean
 

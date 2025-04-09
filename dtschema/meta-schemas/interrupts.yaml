@@ -18,9 +18,13 @@ properties:
   interrupt-map-mask:
     $ref: cell.yaml#/array
   interrupt-controller:
-    oneOf:
-      - $ref: boolean.yaml
-      - $ref: nodes.yaml
+    if:
+      type: object
+      required: [type]
+    then:
+      $ref: nodes.yaml
+    else:
+      $ref: boolean.yaml
 
 dependentRequired:
   interrupt-map: ['#interrupt-cells']
