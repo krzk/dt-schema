@@ -15,6 +15,21 @@ select: true
 
 properties:
   iommus:
+    description: >
+      A list of phandle and IOMMU specifier pairs that describe the IOMMU master
+      interfaces of the device. One entry in the list describes one master
+      interface of the device.
+
+      When an "iommus" property is specified in a device tree node, the IOMMU
+      will be used for address translation. If a "dma-ranges" property exists in
+      the device's parent node it will be ignored. An exception to this rule is
+      if the referenced IOMMU is disabled, in which case the "dma-ranges"
+      property of the parent shall take effect. Note that merely disabling a
+      device tree node does not guarantee that the IOMMU is really disabled
+      since the hardware may not have a means to turn off translation. But it is
+      invalid in such cases to disable the IOMMU's device tree node in the first
+      place because it would prevent any driver from properly setting up the
+      translations.
     $ref: /schemas/types.yaml#/definitions/phandle-array
 
   pasid-num-bits:
