@@ -52,10 +52,41 @@ properties:
       accessing the memory described by /reg and any other inferred MMIO
       regions.
 
+  big-endian:
+    $ref: types.yaml#/definitions/flag
+    description: >
+      Force big endian register accesses unconditionally. Use this if you know
+      the peripheral always needs to be accessed in big endian (BE) mode.
+
+      If a binding supports these properties, then the binding should also
+      specify the default behavior if none of these properties are present.
+      In such cases, little-endian is the preferred default, but it is not
+      a requirement.  Some implementations assume that little-endian is
+      the default, because most existing (PCI-based) drivers implicitly
+      default to LE for their MMIO accesses.
+
+  little-endian:
+    $ref: types.yaml#/definitions/flag
+    description:
+      Force little endian register accesses unconditionally. Use this if you
+      know the peripheral always needs to be accessed in little endian (LE)
+      mode.
+
+  native-endian:
+    $ref: types.yaml#/definitions/flag
+    description:
+      Always use register accesses matched to the endianness of the CPU. In this
+      case no byte swaps will ever be performed.  Use this if the hardware
+      "self-adjusts" register endianness based on the CPU's configured
+      endianness.
+
 additionalProperties: true
 
 dependencies:
   "#size-cells": [ "#address-cells" ]
+  big-endian: [ reg ]
+  little-endian: [ reg ]
+  native-endian: [ reg ]
 
 allOf:
   - if:
