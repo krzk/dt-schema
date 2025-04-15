@@ -461,16 +461,16 @@ def fixup_interrupts(dt, icells):
                 dt[k] += [val[i:i + icells]]
                 i += icells
         elif k == 'interrupt-map' and not isinstance(v, bytes):
-            icells = _get_cells_size(dt, '#interrupt-cells')
+            imap_icells = _get_cells_size(dt, '#interrupt-cells')
             ac = _get_cells_size(dt, '#address-cells')
             i = 0
             dt[k] = []
             val = v[0]
-            phandle = val[ac + icells]
+            phandle = val[ac + imap_icells]
             if phandle == 0xffffffff:
                 # Assume uniform sizes (same interrupt provider)
                 try:
-                    cells = val.index(0xffffffff, ac + icells + 1) - (ac + icells)
+                    cells = val.index(0xffffffff, ac + imap_icells + 1) - (ac + imap_icells)
                 except ValueError:
                     cells = len(val)
                 while i < len(val):
@@ -484,7 +484,7 @@ def fixup_interrupts(dt, icells):
                     else:
                         p_ac = 0
 
-                    cells = ac + icells + 1 + p_ac + p_icells
+                    cells = ac + imap_icells + 1 + p_ac + p_icells
                     dt[k] += [val[i:i + cells]]
                     i += cells
 
