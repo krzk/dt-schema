@@ -38,6 +38,11 @@ properties:
           - const: 0
           - const: 0
 
+  interrupts-extended:
+    description:
+      Occasionally PCI devices have interrupts which are not PCI interrupts. In
+      these cases, use "interrupts-extended" so it is not ambiguous.
+
   interrupts:
     items:
       - items:
