@@ -354,7 +354,7 @@ def fixup_node_props(schema):
     else:
         schema['properties'].setdefault('pinctrl-names', True)
         schema.setdefault('patternProperties', dict())
-        schema['patternProperties']['pinctrl-[0-9]+'] = True
+        schema['patternProperties']['^pinctrl-[0-9]+$'] = True
 
 
 # Convert to standard types from ruamel's CommentedMap/Seq
