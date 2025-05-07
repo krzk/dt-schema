@@ -414,7 +414,7 @@ class DTValidator:
             else:
                 # If we have a schema_cache, then the schema should have been there unless the schema had errors
                 if len(self.schemas):
-                    return False
+                    return {'not': {'description': f"Can't find referenced schema: {uri}"}}
         except:
             raise RefResolutionError('Error in referenced schema matching $id: ' + uri)
 
