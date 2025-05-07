@@ -42,12 +42,15 @@ def get_line_col(tree, path, obj=None):
 def _is_node_schema(schema):
     return isinstance(schema, dict) and \
            (('type' in schema and schema['type'] == 'object') or
-            schema.keys() & {'properties', 'patternProperties'})
+            schema.keys() & {'properties', 'patternProperties', 'additionalProperties', 'unevaluatedProperties'})
 
 
 def _schema_allows_no_undefined_props(schema):
-    return not schema.get("additionalProperties", True) or \
-           not schema.get("unevaluatedProperties", True)
+    additional_props = schema.get("additionalProperties", True)
+    uneval_props = schema.get("unevaluatedProperties", True)
+
+    return not additional_props or isinstance(additional_props, dict) or \
+           not uneval_props or isinstance(uneval_props, dict)
 
 class DTSchema(dict):
     DtValidator = jsonschema.validators.extend(
@@ -168,26 +171,16 @@ class DTSchema(dict):
             if _is_node_schema(schema):
                 has_constraint = _schema_allows_no_undefined_props(schema)
 
-            if not is_common and _is_node_schema(schema) and \
-               (schema.keys() & {'properties', 'patternProperties', '$ref'}):
+            ref_has_constraint = True
+            if '$ref' in schema:
+                ref = schema['$ref']
+                url, ref_sch = self.resolver.resolve(ref)
+                ref_has_constraint = _schema_allows_no_undefined_props(ref_sch)
 
-                ref_has_constraint = False
-                if 'properties' in schema:
-                    # All false properties are not complete schemas
-                    for prop,val in schema['properties'].items():
-                        if val is not False:
-                            break
-                    else:
-                        ref_has_constraint = True
-
-                if '$ref' in schema:
-                    url, ref_sch = self.resolver.resolve(schema['$ref'])
-
-                    ref_has_constraint = _schema_allows_no_undefined_props(ref_sch)
-                if not ref_has_constraint and \
-                   not (has_constraint or (schema.keys() & {'additionalProperties', 'unevaluatedProperties'})):
-                    print(f"{self.filename}: {parent}: Missing additionalProperties/unevaluatedProperties constraint\n",
-                          file=sys.stderr)
+            if not (is_common or ref_has_constraint or has_constraint or
+               (schema.keys() & {'additionalProperties', 'unevaluatedProperties'})):
+                print(f"{self.filename}: {parent}: Missing additionalProperties/unevaluatedProperties constraint\n",
+                      file=sys.stderr)
 
             for k, v in schema.items():
                 self._check_schema_refs(v, parent=k, is_common=is_common,
