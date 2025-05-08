@@ -85,11 +85,11 @@ class DTSchema(dict):
     def http_handler(self, uri):
         '''Custom handler for http://devicetree.org references'''
         uri = uri.rstrip('#')
-        missing_files = []
+        missing_files = ''
         for p in self.paths:
             filename = uri.replace(p[0], p[1])
             if not os.path.isfile(filename):
-                missing_files += [filename]
+                missing_files += f"\t{filename}\n"
                 continue
             with open(filename, 'r', encoding='utf-8') as f:
                 import ruamel.yaml
@@ -97,7 +97,7 @@ class DTSchema(dict):
                 yaml.allow_duplicate_keys = False
                 return yaml.load(f.read())
 
-        raise RefResolutionError(f'Error in referenced schema matching $id: {uri}\n\tTried these paths (check schema $id if path is wrong):\n\t{"\n\t".join(missing_files)}')
+        raise RefResolutionError(f'Error in referenced schema matching $id: {uri}\n\tTried these paths (check schema $id if path is wrong):\n{missing_files}')
 
     def annotate_error(self, error, schema, path):
         error.note = None
