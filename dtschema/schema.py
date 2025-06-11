@@ -46,6 +46,9 @@ def _is_node_schema(schema):
 
 
 def _schema_allows_no_undefined_props(schema):
+    if _is_node_schema(schema):
+        return True
+
     additional_props = schema.get("additionalProperties", True)
     uneval_props = schema.get("unevaluatedProperties", True)
 
