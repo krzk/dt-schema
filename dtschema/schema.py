@@ -78,12 +78,22 @@ class DTSchema(dict):
                 schema = yaml.load(f.read())
 
         self.filename = os.path.abspath(schema_file)
+        self._validator = None
 
         id = schema['$id'].rstrip('#')
         match = re.search('(.*/schemas/)(.+)$', id)
         self.base_path = os.path.abspath(schema_file)[:-len(match[2])]
 
         super().__init__(schema)
+
+    def validator(self):
+        if not self._validator:
+            resolver = jsonschema.RefResolver.from_schema(self,
+                                handlers={'http': self.http_handler})
+            meta_schema = resolver.resolve_from_url(self['$schema'])
+            self._validator = self.DtValidator(meta_schema, resolver=resolver)
+
+        return self._validator
 
     def http_handler(self, uri):
         '''Custom handler for http://devicetree.org references'''
@@ -109,15 +119,15 @@ class DTSchema(dict):
         for e in error.context:
             self.annotate_error(e, schema, path + e.schema_path)
 
-        scope = self.validator.ID_OF(schema)
-        self.validator.resolver.push_scope(scope)
+        scope = self.validator().ID_OF(schema)
+        self.validator().resolver.push_scope(scope)
         ref_depth = 1
 
         for p in path:
             while p not in schema and '$ref' in schema and isinstance(schema['$ref'], str):
-                ref = self.validator.resolver.resolve(schema['$ref'])
+                ref = self.validator().resolver.resolve(schema['$ref'])
                 schema = ref[1]
-                self.validator.resolver.push_scope(ref[0])
+                self.validator().resolver.push_scope(ref[0])
                 ref_depth += 1
 
             if '$id' in schema and isinstance(schema['$id'], str):
@@ -130,19 +140,16 @@ class DTSchema(dict):
                     error.note = schema['description']
 
         while ref_depth > 0:
-            self.validator.resolver.pop_scope()
+            self.validator().resolver.pop_scope()
             ref_depth -= 1
 
         if isinstance(error.schema, dict) and 'description' in error.schema:
             error.note = error.schema['description']
 
     def iter_errors(self):
-        self.resolver = jsonschema.RefResolver.from_schema(self,
-                            handlers={'http': self.http_handler})
-        meta_schema = self.resolver.resolve_from_url(self['$schema'])
-        self.validator = self.DtValidator(meta_schema, resolver=self.resolver)
+        meta_schema = self.validator().resolver.resolve_from_url(self['$schema'])
 
-        for error in self.validator.iter_errors(self):
+        for error in self.validator().iter_errors(self):
             scherr = jsonschema.exceptions.SchemaError.create_from(error)
             self.annotate_error(scherr, meta_schema, scherr.schema_path)
             scherr.linecol = get_line_col(self, scherr.path)
@@ -179,7 +186,7 @@ class DTSchema(dict):
             ref_has_constraint = True
             if '$ref' in schema:
                 ref = schema['$ref']
-                url, ref_sch = self.resolver.resolve(ref)
+                url, ref_sch = self.validator().resolver.resolve(ref)
                 ref_has_constraint = _schema_allows_no_undefined_props(ref_sch)
 
             if not (is_common or ref_has_constraint or has_constraint or
@@ -206,13 +213,14 @@ class DTSchema(dict):
                   file=sys.stderr)
             return
 
+        scope = self.validator().ID_OF(self)
+        if scope:
+            self.validator().resolver.push_scope(scope)
+
         self.paths = [
             (schema_base_url + 'schemas/', self.base_path),
             (schema_base_url + 'schemas/', schema_basedir + '/schemas/'),
         ]
-        scope = self.validator.ID_OF(self)
-        if scope:
-            self.resolver.push_scope(scope)
 
         try:
             self._check_schema_refs(self)
