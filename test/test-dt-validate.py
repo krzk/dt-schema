@@ -82,6 +82,12 @@ class TestDTSchema(unittest.TestCase):
             with self.subTest(schema=filename):
                 dtschema.DTSchema(filename).is_valid(strict=True)
 
+    def test_binding_schemas_refs(self):
+        '''Test that all schema files under ./dtschema/schemas/ have valid references'''
+        for filename in glob.iglob(os.path.join(dtschema_dir, 'schemas/**/*.yaml'), recursive=True):
+            with self.subTest(schema=filename):
+                dtschema.DTSchema(filename).check_schema_refs()
+
     def test_binding_schemas_id_is_unique(self):
         '''Test that all schema files under ./dtschema/schemas/ validate against the DT metaschema'''
         ids = []
