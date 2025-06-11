@@ -18,9 +18,9 @@ properties:
   gpio-map:
     $ref: /schemas/types.yaml#/definitions/uint32-matrix
   gpio-map-mask:
-    $ref: types.yaml#/definitions/uint32-array
+    $ref: /schemas/types.yaml#/definitions/uint32-array
   gpio-map-pass-thru:
-    $ref: types.yaml#/definitions/uint32-array
+    $ref: /schemas/types.yaml#/definitions/uint32-array
 
 dependentRequired:
   gpio-map: ['#gpio-cells']
