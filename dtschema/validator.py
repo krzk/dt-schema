@@ -64,9 +64,9 @@ def _extract_prop_type(props, schema, propname, subschema, is_pattern):
             #print(propname, sch_path, tmp_subschema, file=sys.stderr)
             _extract_prop_type(props, schema, propname, tmp_subschema, is_pattern)
         elif '/properties/' in subschema['$ref']:
-            ref_prop = subschema['$ref'].split('/')[-1]
-            if ref_prop in props:
-                prop_type = props[ref_prop][0]['type']
+            prop_type = subschema['$ref'].split('/')[-1]
+            if prop_type == propname:
+                prop_type = None
 
     for k in subschema.keys() & {'allOf', 'oneOf', 'anyOf'}:
         for v in subschema[k]:
@@ -186,6 +186,15 @@ def extract_types(schemas):
     props = {}
     for sch in schemas.values():
         _extract_subschema_types(props, sch, sch)
+
+    for prop in props.values():
+        for v in prop:
+            if not v['type'] or v['type'] == 'node':
+                continue
+            prop_type = v['type']
+            if not type_re.search(prop_type):
+                v['type'] = props[prop_type][0]['type']
+                break
 
     return props
 
