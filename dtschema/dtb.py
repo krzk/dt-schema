@@ -147,13 +147,11 @@ def prop_value(validator, nodename, p):
                     fmt = matrix_prop_types.pop()
         else:
             #print(p.name + ': multiple types found', file=sys.stderr)
-            # HACK around a type collision. Since 4 bytes could be either type,
-            # let's hope a value of 1-4 is not a phandle
+            # HACK around type collisions.
             if p.name == "dma-masters":
-                if len(p) == 4 and (0 < type_format['uint32'].unpack(data)[0] <= 4):
-                    fmt = 'uint32'
-                else:
-                    fmt = 'phandle-array'
+                # Default for phandles, and then fixup later when we can more
+                # reliably detect what is or isn't a phandle in fixup_handles()
+                fmt = 'phandle-array'
             elif p.name == "mode-gpios":
                 # "mode-gpios" also matches "^mode-" pattern, but it is always a GPIO
                 fmt = 'phandle-array'
@@ -312,6 +310,7 @@ phandle_args = {
     'sound-dai': '#sound-dai-cells',
     'msi-parent': '#msi-cells',
     'msi-ranges': '#interrupt-cells',
+    'dma-masters': '#dma-cells',
     'gpio-ranges': 3,
 
     'memory-region': None,
@@ -365,7 +364,7 @@ def fixup_phandles(validator, dt, path=''):
             continue
         elif not {'phandle-array'} & set(validator.property_get_type(k)):
             continue
-        elif validator.property_has_fixed_dimensions(k):
+        elif k != 'dma-masters' and validator.property_has_fixed_dimensions(k):
             continue
         elif not isinstance(v, list) or (len(v) > 1 or not isinstance(v[0], list)):
             # Not a matrix or already split, nothing to do
@@ -379,6 +378,15 @@ def fixup_phandles(validator, dt, path=''):
             if i == 0:
                 continue
         else:
+            continue
+
+        # HACK around a type collision. Check if the phandle value points
+        # to a DMA provider node or not. If not, then it's a uint32, not a
+        # phandle.
+        phandle = v[0][0]
+        if k == 'dma-masters' and (phandle >= 1 and phandle <= 4) and \
+           (phandle not in phandles or cellname not in phandles[phandle]):
+            dt[k] = phandle
             continue
 
         i = 0
