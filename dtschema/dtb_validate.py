@@ -156,3 +156,6 @@ def main():
         if verbose:
             print("Check:  " + filename)
         sg.check_dtb(filename)
+
+if __name__ == '__main__':
+    main()
