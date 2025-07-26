@@ -24,6 +24,10 @@ from dtschema.schema import (
     DTSchema,
 )
 
+from dtschema.dts_style import (
+    DtsStyle,
+)
+
 from dtschema.validator import (
     DTValidator,
 )
