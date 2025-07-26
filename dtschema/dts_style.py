@@ -15,50 +15,52 @@ class DtsStyle():
         self.__handlers = [(re.compile(r'^\s*(?P<label>[a-zA-Z0-9,_-]+:)?(?P<s1>\s*)(?P<nodename>[a-zA-Z0-9,_-]+)(@(?P<unitaddr>[0-9a-fA-FxX]+))?(?P<s2>\s*)\{(?P<s3>\s*)$'), self.handle_node),
                            ]
 
-    def handle_node(self, line, match):
+    def handle_node(self, line, ln, match):
         label = match.group('label')
         nodename = match.group('nodename')
         unitaddr = match.group('unitaddr')
         if label:
             if match.group('s1') != ' ':
-                self.warnings.append(['Whitespace error', line])
+                self.warnings.append(['Whitespace error', line, ln])
             if '-' in label:
-                self.warnings.append(['Label: use underscores instead of hyphens', line])
+                self.warnings.append(['Label: use underscores instead of hyphens', line, ln])
             if re.search('[A-Z]', label):
-                self.warnings.append(['Label: only lowercase letters', line])
+                self.warnings.append(['Label: only lowercase letters', line, ln])
         if match.group('s2') != ' ':
-            self.warnings.append(['Whitespace error', line])
+            self.warnings.append(['Whitespace error', line, ln])
         if match.group('s3'):
-            self.warnings.append(['Whitespace error', line])
+            self.warnings.append(['Whitespace error', line, ln])
         if '_' in nodename:
-            self.warnings.append(['Node name: use hyphens instead of underscores', line])
+            self.warnings.append(['Node name: use hyphens instead of underscores', line, ln])
         if re.search('[A-Z]', nodename):
-            self.warnings.append(['Node name: only lowercase letters', line])
+            self.warnings.append(['Node name: only lowercase letters', line, ln])
         if unitaddr:
             if re.search('[A-F]', unitaddr):
-                self.warnings.append(['Unit address: only lowercase hex', line])
+                self.warnings.append(['Unit address: only lowercase hex', line, ln])
             if re.search('[xX]', unitaddr):
-                self.warnings.append(['Unit address: avoid "0x"', line])
+                self.warnings.append(['Unit address: avoid "0x"', line, ln])
             if re.search('^0+[1-9a-f][0-9a-f]*$', unitaddr):
-                self.warnings.append(['Unit address: avoid leading "0"', line])
+                self.warnings.append(['Unit address: avoid leading "0"', line, ln])
 
     def check_dts(self,):
         """Check the given DTS/DTSI/DTSO for style"""
         with open(self.__filename, 'r') as f:
+            i = 1
             for line in f:
-                self.parse_line(line.rstrip('\n'))
+                self.parse_line(line.rstrip('\n'), i)
+                i += 1
 
-    def parse_line(self, line):
+    def parse_line(self, line, ln):
         for pattern, handler in self.__handlers:
             match = pattern.match(line)
             if match:
-                handler(line, match)
+                handler(line, ln, match)
                 break
 
     def print_warnings(self):
-        for (warning, line) in self.warnings:
-            print(f'{self.__filename}: {warning}:')
-            print(f'{self.__filename}: {line}')
+        for (warning, line, ln) in self.warnings:
+            print(f'{self.__filename}:{ln}: {warning}')
+            print(f'{ln:4} | {line}')
 
 def main():
     global verbose
