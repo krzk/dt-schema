@@ -16,6 +16,18 @@
             "console": "integratedTerminal",
             "args": ["-v", "-s", "~/dev/linux/linux/build/Documentation/devicetree/bindings/processed-schema.json",
                      "~/dev/linux/linux/build/arch/arm64/boot/dts/exynos/"],
+        },
+        {
+            "name": "Test: test-dts-style",
+            "python": "${workspaceFolder}/.venv/bin/python3",
+            "type": "debugpy",
+            "request": "launch",
+            "program": "test/test-dts-style.py",
+            "env": {
+                "PYTHONPATH": "${workspaceFolder}"
+            },
+            "console": "integratedTerminal",
+            "args": [],
         }
     ]
 }
