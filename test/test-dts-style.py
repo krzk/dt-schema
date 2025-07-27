@@ -56,10 +56,50 @@ class TestDTMetaSchema(unittest.TestCase):
             ['Whitespace error', '&intc_3  {', 28],
             ['Whitespace error', '  &intc_4 {', 32],
             ['Label: use underscores instead of hyphens', '&intc-5 {', 36],
+            ['Node overrides do not look sorted alphanumerically', '&intc-5 {', 36],
             ['Label: only lowercase letters', '&intC_6 {', 40],
+            ['Node overrides do not look sorted alphanumerically', '&intC_6 {', 40],
             ['Node name: only lowercase letters', '\tINTERRUPT-controller-1 {', 47],
         ]
         style = dtschema.DtsStyle(os.path.join(basedir, 'style/nodeoverride.dts'))
+        style.check_dts()
+        self.assertListEqual(style.warnings, expected)
+
+    def test_nodeorder_label(self):
+        expected = [
+            ['Node overrides do not look sorted alphanumerically', '&a_error {', 26],
+            ['Node overrides do not look sorted alphanumerically', '&b_error {', 42],
+        ]
+        style = dtschema.DtsStyle(os.path.join(basedir, 'style/nodeorder-label.dts'))
+        style.check_dts()
+        self.assertListEqual(style.warnings, expected)
+
+    def test_nodeorder_mixed(self):
+        expected = [
+            ['Nodes do not look sorted alphanumerically', '\ta-error {', 21],
+            ['Nodes do not look sorted by unit address', '\ta-error@30 {', 35],
+            # Uncomment if check in DtsStyle is enabled
+            # ['Nodes without unit addresses should preceed nodes with unit address', '\tb-error {', 40],
+        ]
+        style = dtschema.DtsStyle(os.path.join(basedir, 'style/nodeorder-mixed.dts'))
+        style.check_dts()
+        self.assertListEqual(style.warnings, expected)
+
+    def test_nodeorder_name(self):
+        expected = [
+            ['Nodes do not look sorted alphanumerically', '\ta-error {', 21],
+            ['Nodes do not look sorted alphanumerically', '\tb-error {', 37],
+        ]
+        style = dtschema.DtsStyle(os.path.join(basedir, 'style/nodeorder-name.dts'))
+        style.check_dts()
+        self.assertListEqual(style.warnings, expected)
+
+    def test_nodeorder_unitaddr(self):
+        expected = [
+            ['Nodes do not look sorted by unit address', '\ta-error@30 {', 33],
+            ['Nodes do not look sorted by unit address', '\td-error@24 {', 43],
+        ]
+        style = dtschema.DtsStyle(os.path.join(basedir, 'style/nodeorder-unitaddr.dts'))
         style.check_dts()
         self.assertListEqual(style.warnings, expected)
 
