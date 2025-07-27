@@ -1,0 +1,69 @@
+// SPDX-License-Identifier: BSD-2-Clause
+/dts-v1/;
+/ {
+	model = "none";
+	compatible = "foo";
+
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	interrupt-controller;
+	#interrupt-cells = <1>;
+
+	// OK:
+	interrupt-controller@1 {
+		compatible = "vendor,soc1-ip";
+		reg = <0x1 0x4>;
+	};
+
+	intc_ok_2_2: interrupt-controller@2 {
+		compatible = "vendor,soc1-ip";
+		reg = <0x2 0x4>;
+	};
+
+	interrupt-controller@1f0 {
+		compatible = "vendor,soc1-ip";
+		reg = <0x1f0 0x4>;
+	};
+
+	// ERRORS:
+	interrupt-controller@ff3  {
+		compatible = "vendor,soc1-ip";
+		reg = <0xff3 0x4>;
+	};
+
+	intc_4_2: interrupt-controller@ff4  {
+		compatible = "vendor,soc1-ip";
+		reg = <0xff4 0x4>;
+	};
+
+	intc-5_2: interrupt-controller@ff5  {
+		compatible = "vendor,soc1-ip";
+		reg = <0xff5 0x4>;
+	};
+
+	intc_6_2:  interrupt-controller@ff6 {
+		compatible = "vendor,soc1-ip";
+		reg = <0xff6 0x4>;
+	};
+
+	intc_7_2:interrupt_controller@ff7 {
+		compatible = "vendor,soc1-ip";
+		reg = <0xff7 0x4>;
+	};
+
+	intC_8_2: interrupt-controller@ff8 {
+		compatible = "vendor,soc1-ip";
+		reg = <0xff8 0x4>;
+	};
+
+	intc_9_2: interrupt-controlleR@ff9 {
+		compatible = "vendor,soc1-ip";
+		reg = <0xff9 0x4>;
+	};
+
+	interrupt-controller@0ffa {
+		compatible = "vendor,soc1-ip";
+		reg = <0xffa 0x4>;
+	};
+};
