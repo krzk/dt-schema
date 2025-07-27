@@ -12,10 +12,14 @@ class DtsStyle():
     def __init__(self, filename):
         self.warnings = []
         self.__filename = filename
-        self.__handlers = [(re.compile(r'^\s*(?P<label>[a-zA-Z0-9,_-]+:)?(?P<s1>\s*)(?P<nodename>[a-zA-Z0-9,_-]+)(@(?P<unitaddr>[0-9a-fA-FxX]+))?(?P<s2>\s*)\{(?P<s3>\s*)$'), self.handle_node),
-                           ]
+        self.__handlers = [
+            (re.compile(r'^\s*(?P<label>[a-zA-Z0-9,_-]+:)?(?P<s1>\s*)(?P<nodename>[a-zA-Z0-9,_-]+)(@(?P<unitaddr>[0-9a-fA-FxX]+))?(?P<s2>\s*)\{(?P<s3>\s*)$'),
+             self.handle_node),
+            (re.compile(r'^(?P<s1>\s*)(?P<label>&[a-zA-Z0-9,_-]+)?(?P<s2>\s*)\{(?P<s3>\s*)$'),
+             self.handle_node_extend),
+            ]
 
-    def handle_node(self, line, ln, match):
+    def check_node_name(self, line, ln, match):
         label = match.group('label')
         nodename = match.group('nodename')
         unitaddr = match.group('unitaddr')
@@ -39,6 +43,21 @@ class DtsStyle():
                 self.warnings.append(['Unit address: avoid "0x"', line, ln])
             if re.search('^0+[1-9a-f][0-9a-f]*$', unitaddr):
                 self.warnings.append(['Unit address: avoid leading "0"', line, ln])
+
+    def check_label(self, line, ln, match):
+        label = match.group('label')
+        if match.group('s1') or match.group('s2') != ' ' or match.group('s3'):
+            self.warnings.append(['Whitespace error', line, ln])
+        if '-' in label:
+            self.warnings.append(['Label: use underscores instead of hyphens', line, ln])
+        if re.search('[A-Z]', label):
+            self.warnings.append(['Label: only lowercase letters', line, ln])
+
+    def handle_node(self, line, ln, match):
+        self.check_node_name(line, ln, match)
+
+    def handle_node_extend(self, line, ln, match):
+        self.check_label(line, ln, match)
 
     def check_dts(self,):
         """Check the given DTS/DTSI/DTSO for style"""

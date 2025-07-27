@@ -41,5 +41,17 @@ class TestDTMetaSchema(unittest.TestCase):
         style.check_dts()
         self.assertListEqual(style.warnings, expected)
 
+    def test_nodeoverride(self):
+        expected = [
+            ['Whitespace error', '&intc_3  {', 28],
+            ['Whitespace error', '  &intc_4 {', 32],
+            ['Label: use underscores instead of hyphens', '&intc-5 {', 36],
+            ['Label: only lowercase letters', '&intC_6 {', 40],
+            ['Node name: only lowercase letters', '\tINTERRUPT-controller-1 {', 47],
+        ]
+        style = dtschema.DtsStyle(os.path.join(basedir, 'style/nodeoverride.dts'))
+        style.check_dts()
+        self.assertListEqual(style.warnings, expected)
+
 if __name__ == '__main__':
     unittest.main()

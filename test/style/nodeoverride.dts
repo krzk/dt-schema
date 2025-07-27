@@ -1,0 +1,50 @@
+// SPDX-License-Identifier: BSD-2-Clause
+/dts-v1/;
+/ {
+	model = "none";
+	compatible = "foo";
+
+	#address-cells = <1>;
+	#size-cells = <1>;
+
+	interrupt-controller;
+	#interrupt-cells = <1>;
+};
+
+// OK:
+&intc_1 {
+	status = "okay";
+};
+
+&intc_2 {
+	status = "okay";
+
+	interrupt-controller-1 {
+		compatible = "vendor,soc1-ip";
+	};
+};
+
+// ERRORS:
+&intc_3  {
+	status = "okay";
+};
+
+  &intc_4 {
+	status = "okay";
+};
+
+&intc-5 {
+	status = "okay";
+};
+
+&intC_6 {
+	status = "okay";
+};
+
+&intc_7 {
+	status = "okay";
+
+	INTERRUPT-controller-1 {
+		compatible = "vendor,soc1-ip";
+	};
+};
