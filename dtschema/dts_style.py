@@ -26,9 +26,7 @@ class DtsStyle():
                 self.warnings.append(['Label: use underscores instead of hyphens', line, ln])
             if re.search('[A-Z]', label):
                 self.warnings.append(['Label: only lowercase letters', line, ln])
-        if match.group('s2') != ' ':
-            self.warnings.append(['Whitespace error', line, ln])
-        if match.group('s3'):
+        if match.group('s2') != ' ' or match.group('s3'):
             self.warnings.append(['Whitespace error', line, ln])
         if '_' in nodename:
             self.warnings.append(['Node name: use hyphens instead of underscores', line, ln])
