@@ -44,8 +44,12 @@ class DtsStyle():
             elif node['nodename'] < prev_node['nodename']:
                 # Enforce node sorting by name only for top-level nodes, because
                 # children of many devices, e.g. thermal trips or pin muxes follow different
-                # style.
-                if self.__nested < 2:
+                # style, so skip nesting of top-level nodes and nesting within node
+                # overrides (by label)
+                override_by_label = False
+                if (self.__nested - 1) in self.__prev_node:
+                    override_by_label = self.__prev_node[self.__nested - 1]['label'] != ''
+                if self.__nested < 2 and not override_by_label:
                     self.warnings.append(['Nodes do not look sorted alphanumerically', line, ln])
             return
         self.warnings.append(['Dunno how to handle this yet', line, ln])

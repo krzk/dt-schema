@@ -42,3 +42,13 @@
 &b_error-also-wrong-name {
 	status = "okay";
 };
+
+&d_ok {
+	b-ignored {
+		status = "okay";
+	};
+
+	a-ignored {
+		status = "okay";
+	};
+}
