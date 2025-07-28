@@ -68,7 +68,8 @@ class TestDTMetaSchema(unittest.TestCase):
     def test_nodeorder_label(self):
         expected = [
             ['Node overrides do not look sorted alphanumerically', '&a_error {', 26],
-            ['Node overrides do not look sorted alphanumerically', '&b_error {', 42],
+            ['Label: use underscores instead of hyphens', '&b_error-also-wrong-name {', 42],
+            ['Node overrides do not look sorted alphanumerically', '&b_error-also-wrong-name {', 42],
         ]
         style = dtschema.DtsStyle(os.path.join(basedir, 'style/nodeorder-label.dts'))
         style.check_dts()
@@ -88,7 +89,8 @@ class TestDTMetaSchema(unittest.TestCase):
     def test_nodeorder_name(self):
         expected = [
             ['Nodes do not look sorted alphanumerically', '\ta-error {', 21],
-            ['Nodes do not look sorted alphanumerically', '\tb-error {', 37],
+            ['Node name: use hyphens instead of underscores', '\tb-error_also_wrong_name {', 37],
+            ['Nodes do not look sorted alphanumerically', '\tb-error_also_wrong_name {', 37],
         ]
         style = dtschema.DtsStyle(os.path.join(basedir, 'style/nodeorder-name.dts'))
         style.check_dts()

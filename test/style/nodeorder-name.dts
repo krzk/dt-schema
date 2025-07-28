@@ -34,7 +34,7 @@
 		compatible = "vendor,soc1-ip";
 	};
 
-	b-error {
+	b-error_also_wrong_name {
 		compatible = "vendor,soc1-ip";
 	};
 

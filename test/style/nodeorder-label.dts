@@ -39,6 +39,6 @@
 	status = "okay";
 };
 
-&b_error {
+&b_error-also-wrong-name {
 	status = "okay";
 };
