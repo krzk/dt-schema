@@ -22,6 +22,9 @@ class DtsStyle():
             (re.compile(r'^.*\{.*$'), self.handle_open_node),
             (re.compile(r'^.*\};(?P<s1>\s*)$'), self.handle_close_node),
             ]
+        if filename.endswith('.diff') or filename.endswith('.patch'):
+            # TODO: handle diff/patch
+            raise Exception('Cannot handle diff/patch files yet, pass DTS/DTSI/DTSO only')
 
     def check_node_sorting(self, line, ln, node):
         if not self.__nested in self.__prev_node:
