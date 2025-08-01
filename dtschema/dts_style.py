@@ -8,6 +8,31 @@ import re
 
 verbose = False
 
+class DtsFile():
+    def __init__(self, filename):
+        self.filename = filename
+        self.lineno = 0
+        self.__file = None
+
+    def __enter__(self):
+        self.__file = open(self.filename, 'r')
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        if self.__file is not None:
+            self.__file.close()
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        a = next(self.__file)
+        self.lineno += 1
+        return (a, self.lineno)
+
+    def __str__(self):
+        return self.filename
+
 class DtsStyle():
     def __init__(self, filename):
         self.warnings = []
@@ -121,13 +146,11 @@ class DtsStyle():
             del self.__prev_node[self.__nested]
         self.__nested -= 1
 
-    def check_dts(self,):
+    def check_dts(self):
         """Check the given DTS/DTSI/DTSO for style"""
-        with open(self.__filename, 'r') as f:
-            i = 1
-            for line in f:
-                self.parse_line(line.rstrip('\n'), i)
-                i += 1
+        with DtsFile(self.__filename) as f:
+            for (line, lineno) in f:
+                self.parse_line(line.rstrip('\n'), lineno)
 
     def parse_line(self, line, ln):
         for pattern, handler in self.__handlers:

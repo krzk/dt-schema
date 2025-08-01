@@ -25,7 +25,7 @@ from dtschema.schema import (
 )
 
 from dtschema.dts_style import (
-    DtsStyle,
+    DtsFile, DtsStyle,
 )
 
 from dtschema.validator import (

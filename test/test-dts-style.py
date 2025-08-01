@@ -19,6 +19,26 @@ class TestDTMetaSchema(unittest.TestCase):
         with self.assertRaises(FileNotFoundError):
             style.check_dts()
 
+    def test_dtsfile_iterator(self):
+        filename = os.path.join(basedir, 'style/dtsfile.dts')
+        with dtschema.DtsFile(filename) as f:
+            self.assertEqual(str(f), filename)
+            (line, lineno) = next(f)
+            self.assertEqual(lineno, 1)
+            self.assertEqual(line.rstrip(), '// SPDX-License-Identifier: BSD-2-Clause')
+            (line, lineno) = next(f)
+            self.assertEqual(lineno, 2)
+            self.assertEqual(line.rstrip(), '/dts-v1/;')
+            (line, lineno) = next(f)
+            self.assertEqual(lineno, 3)
+            self.assertEqual(line.rstrip(), '/ {')
+            (line, lineno) = next(f)
+            self.assertEqual(lineno, 4)
+            self.assertEqual(line.rstrip(), '	// foo')
+            (line, lineno) = next(f)
+            self.assertEqual(lineno, 5)
+            self.assertEqual(line.rstrip(), '};')
+
     def test_nodename(self):
         expected = [
             ['Whitespace error', '\tinterrupt-controller-3  {', 23],
