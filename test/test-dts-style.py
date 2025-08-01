@@ -14,6 +14,11 @@ basedir = os.path.dirname(__file__)
 class TestDTMetaSchema(unittest.TestCase):
     maxDiff = 4096
 
+    def test_nonexistingfile(self):
+        style = dtschema.DtsStyle('does-not-exist-foo-bar.dts')
+        with self.assertRaises(FileNotFoundError):
+            style.check_dts()
+
     def test_nodename(self):
         expected = [
             ['Whitespace error', '\tinterrupt-controller-3  {', 23],
