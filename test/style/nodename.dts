@@ -15,7 +15,7 @@
 		compatible = "vendor,soc1-ip";
 	};
 
-	intc_ok_2: interrupt-controller-2 {
+	intc_ok_2: interrupt-controller-2 { // Comment
 		compatible = "vendor,soc1-ip";
 	};
 
@@ -49,6 +49,14 @@
 	};
 
 	interrupt-controlleR-10 {
+		compatible = "vendor,soc1-ip";
+	};
+
+	interrupt-controlleR-11 { // Comment
+		compatible = "vendor,soc1-ip";
+	};
+
+	interrupt-controlleR-12 { /* Comment */
 		compatible = "vendor,soc1-ip";
 	};
 };

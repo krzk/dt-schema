@@ -21,6 +21,16 @@
 		reg = <0x2 0x4>;
 	};
 
+	interrupt-controller@4 { // Comment
+		compatible = "vendor,soc1-ip";
+		reg = <0x4 0x4>;
+	};
+
+	interrupt-controller@8 { /* Comment */
+		compatible = "vendor,soc1-ip";
+		reg = <0x4 0x4>;
+	};
+
 	interrupt-controller@1f0 {
 		compatible = "vendor,soc1-ip";
 		reg = <0x1f0 0x4>;
@@ -62,7 +72,17 @@
 		reg = <0xff9 0x4>;
 	};
 
-	interrupt-controller@0ffa {
+	interrupt-controlleR@fff0 { // Comment
+		compatible = "vendor,soc1-ip";
+		reg = <fff0 0x4>;
+	};
+
+	interrupt-controlleR@fff4 { /* Comment */
+		compatible = "vendor,soc1-ip";
+		reg = <fff4 0x4>;
+	};
+
+	interrupt-controller@0fffa {
 		compatible = "vendor,soc1-ip";
 		reg = <0xffa 0x4>;
 	};

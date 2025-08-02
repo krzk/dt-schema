@@ -22,15 +22,23 @@
 		compatible = "vendor,soc1-ip";
 	};
 
+	a-also-error-2 { // Comment
+		compatible = "vendor,soc1-ip";
+	};
+
+	a-also-error-1 { /* Comment */
+		compatible = "vendor,soc1-ip";
+	};
+
 	c-ok {
 		compatible = "vendor,soc1-ip";
 	};
 
-	c-ok-1 {
+	c-ok-1 { // Comment
 		compatible = "vendor,soc1-ip";
 	};
 
-	c-ok-ok {
+	c-ok-ok { /* Comment */
 		compatible = "vendor,soc1-ip";
 	};
 
@@ -39,11 +47,19 @@
 	};
 
 	d-ok {
-		b-ignored {
+		d-ignored {
 			compatible = "vendor,soc1-ip";
 		};
 
-		a-ignored {
+		c-ignored {
+			compatible = "vendor,soc1-ip";
+		};
+
+		b-ignored { // Comment
+			compatible = "vendor,soc1-ip";
+		};
+
+		a-ignored { /* Comment */
 			compatible = "vendor,soc1-ip";
 		};
 	}

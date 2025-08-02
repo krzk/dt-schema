@@ -29,6 +29,14 @@
 	status = "okay";
 };
 
+&intc_3  { // Comment
+	status = "okay";
+};
+
+&intc_3  { /* Comment */
+	status = "okay";
+};
+
   &intc_4 {
 	status = "okay";
 };
@@ -45,6 +53,14 @@
 	status = "okay";
 
 	INTERRUPT-controller-1 {
+		compatible = "vendor,soc1-ip";
+	};
+
+	INTERRUPT-controller-2 { // Comment
+		compatible = "vendor,soc1-ip";
+	};
+
+	INTERRUPT-controller-3 { /* Comment */
 		compatible = "vendor,soc1-ip";
 	};
 };

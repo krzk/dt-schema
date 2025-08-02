@@ -15,7 +15,7 @@
 	status = "okay";
 };
 
-&intc_2 {
+&intc_2 { // Comment
 	status = "okay";
 
 	interrupt-controller-1 {
@@ -27,11 +27,23 @@
 	status = "okay";
 };
 
+&a_also_error_1 { // Comment
+	status = "okay";
+};
+
 &c_ok {
 	status = "okay";
 };
 
+&a_also_error_2 { /* Comment */
+	status = "okay";
+};
+
 &c_ok_1 {
+	status = "okay";
+};
+
+&c_ok_2 { // ok
 	status = "okay";
 };
 
@@ -49,6 +61,10 @@
 	};
 
 	a-ignored {
+		status = "okay";
+	};
+
+	c-ignored { /* comment */
 		status = "okay";
 	};
 }
